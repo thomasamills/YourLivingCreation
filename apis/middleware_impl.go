@@ -5,9 +5,9 @@ import (
 	"fmt"
 	humanize_client "testserver/connection_manager"
 	"testserver/db"
+	"testserver/game_loop"
 	"testserver/id_gen"
 	"testserver/memory_manager"
-	"testserver/python_client"
 	emotional_state_manager "testserver/rule_system"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
@@ -27,11 +27,7 @@ func NewMiddlewareApiImplementation(
 	promptCreation := emotional_state_manager.NewActuationRuleBasedSystemManager(db, emotionalStateManager)
 	memoryManager := memory_manager.NewMemoryManager(db)
 	gameLoopRegistry := humanize_client.NewGameLoopManagerRegistry()
-	pythonClient, err := python_client.NewHumanizePythonClient()
-	if err != nil {
-		return nil, err
-	}
-
+	chatGptClient := game_loop.NewChatGptClient()
 	conversationManager, err := humanize_client.NewConnectionManager(
 		db,
 		emotionalStateManager,
@@ -39,7 +35,7 @@ func NewMiddlewareApiImplementation(
 		promptCreation,
 		memoryManager,
 		gameLoopRegistry,
-		pythonClient,
+		chatGptClient,
 	)
 	if err != nil {
 		fmt.Println("couldn't connect to python client")

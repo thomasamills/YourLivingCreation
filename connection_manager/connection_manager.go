@@ -8,7 +8,6 @@ import (
 	"testserver/game_loop"
 	"testserver/id_gen"
 	"testserver/memory_manager"
-	"testserver/python_client"
 	emotional_state_manager "testserver/rule_system"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
@@ -33,7 +32,7 @@ type ConnectionManagerImpl struct {
 	promptCreation        emotional_state_manager.PromptRuleSystemManager
 	memoryManager         memory_manager.MemoryManager
 	gameLoopRegistry      GameLoopManagerRegistry
-	pythonClient          python_client.HumanizePythonClient
+	chatGptClient         game_loop.ChatGptClient
 }
 
 func NewConnectionManager(
@@ -43,7 +42,7 @@ func NewConnectionManager(
 	promptCreation emotional_state_manager.PromptRuleSystemManager,
 	memManager memory_manager.MemoryManager,
 	gameLoopRegistry GameLoopManagerRegistry,
-	pythonClient python_client.HumanizePythonClient,
+	chatGptClient game_loop.ChatGptClient,
 ) (ConnectionManager, error) {
 	go func() {
 		if err := gameLoopRegistry.PurgeGameLoops(); err != nil {
@@ -57,7 +56,7 @@ func NewConnectionManager(
 		promptCreation:        promptCreation,
 		memoryManager:         memManager,
 		gameLoopRegistry:      gameLoopRegistry,
-		pythonClient:          pythonClient,
+		chatGptClient:         chatGptClient,
 	}
 	return client, nil
 }
@@ -174,7 +173,7 @@ func (cm *ConnectionManagerImpl) Connect(
 		cm.emotionalStateManager,
 		cm.promptCreation,
 		session,
-		cm.pythonClient,
+		cm.chatGptClient,
 	)
 
 	err = gameLoop.LoadNpcs()
