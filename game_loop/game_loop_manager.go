@@ -11,7 +11,6 @@ import (
 	"testserver/id_gen"
 	"testserver/memory_manager"
 	npcdata "testserver/npcs"
-	"testserver/python_client"
 	"testserver/rule_system"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 	"time"
@@ -33,7 +32,6 @@ type GameLoopManager interface {
 
 type GameLoopManagerImpl struct {
 	db                     db.HumanizeDB
-	pythonClient           python_client.HumanizePythonClient
 	memoryManager          memory_manager.MemoryManager
 	emotionalStateManager  rule_system.EmotionalStateManager
 	promptCreator          rule_system.PromptRuleSystemManager
@@ -49,6 +47,7 @@ type GameLoopManagerImpl struct {
 	lastActiveTime         time.Time
 	idGen                  id_gen.ULIDGenerator
 	stateUpdateCallback    map[string]func() (*humanize_protobuf.MessageResponseData, error)
+	chatGprClient          ChatGptClient
 }
 
 func (g *GameLoopManagerImpl) Commit(commitToken string) (*humanize_protobuf.MessageResponseData, error) {
@@ -76,12 +75,11 @@ func NewGameLoopManager(
 	stateManager rule_system.EmotionalStateManager,
 	promptCreator rule_system.PromptRuleSystemManager,
 	session *db.Session,
-	client python_client.HumanizePythonClient,
+	chatGptClient ChatGptClient,
 ) GameLoopManager {
 	return &GameLoopManagerImpl{
 		mu:                    sync.Mutex{},
 		db:                    db,
-		pythonClient:          client,
 		memoryManager:         manager,
 		emotionalStateManager: stateManager,
 		promptCreator:         promptCreator,
@@ -93,6 +91,7 @@ func NewGameLoopManager(
 		lastActiveTime:        time.Now(),
 		idGen:                 id_gen.NewULIDGenerator(),
 		stateUpdateCallback:   make(map[string]func() (*humanize_protobuf.MessageResponseData, error), 0),
+		chatGprClient:         chatGptClient,
 	}
 }
 
@@ -414,13 +413,12 @@ func (g *GameLoopManagerImpl) SendMessage(
 			ErrorMessage: errMessage,
 		}, nil
 	}
-	response, err := g.pythonClient.SendMessage(&humanize_protobuf.HumanizeRequest{
-		Message:       req.Message,
-		CharacterName: npcInformation.Entity.Name,
-		SpeakerName:   g.session.SpeakerName,
-		Prompt:        prompt.PromptText,
-		RequestType:   humanize_protobuf.HumanizeRequest_REQUEST_TYPE_SEND_MESSAGE_TO_NPC,
-	})
+	response, err := g.chatGprClient.SendPrompt(
+		npcInformation.Entity.Name,
+		g.session.SpeakerName,
+		prompt.PromptText,
+		humanize_protobuf.HumanizeRequest_REQUEST_TYPE_SEND_MESSAGE_TO_NPC,
+	)
 	if err != nil {
 		errMessage := "could not get a response from gpt"
 		return &humanize_protobuf.GetConversationInformationResponse{
@@ -528,12 +526,12 @@ func (g *GameLoopManagerImpl) npcSpeakWithPlayer(npc *npcdata.NpcData) error {
 		return err
 	}
 	// Send with python client and process the result
-	response, err := g.pythonClient.SendMessage(&humanize_protobuf.HumanizeRequest{
-		CharacterName: npc.Entity.Name,
-		SpeakerName:   g.session.SpeakerName,
-		Prompt:        autonomousPrompt.PromptText,
-		RequestType:   humanize_protobuf.HumanizeRequest_REQUEST_TYPE_AUTONOMOUS,
-	})
+	response, err := g.chatGprClient.SendPrompt(
+		npc.Entity.Name,
+		g.session.SpeakerName,
+		autonomousPrompt.PromptText,
+		humanize_protobuf.HumanizeRequest_REQUEST_TYPE_AUTONOMOUS,
+	)
 	if err != nil {
 		return err
 	}
@@ -581,12 +579,12 @@ func (g *GameLoopManagerImpl) npcSpeakWithTarget(npc *npcdata.NpcData) error {
 		return err
 	}
 	// Send with python client and process the result
-	askerResponse, err := g.pythonClient.SendMessage(&humanize_protobuf.HumanizeRequest{
-		CharacterName: npc.Entity.Name,
-		SpeakerName:   selectedNpc.Entity.Name,
-		Prompt:        autonomousPrompt.PromptText,
-		RequestType:   humanize_protobuf.HumanizeRequest_REQUEST_TYPE_AUTONOMOUS,
-	})
+	askerResponse, err := g.chatGprClient.SendPrompt(
+		npc.Entity.Name,
+		selectedNpc.Entity.Name,
+		autonomousPrompt.PromptText,
+		humanize_protobuf.HumanizeRequest_REQUEST_TYPE_AUTONOMOUS,
+	)
 	if err != nil {
 		return err
 	}
@@ -606,13 +604,12 @@ func (g *GameLoopManagerImpl) npcSpeakWithTarget(npc *npcdata.NpcData) error {
 		return err
 	}
 	// Send with python client and process the result
-	response, err := g.pythonClient.SendMessage(&humanize_protobuf.HumanizeRequest{
-		CharacterName: selectedNpc.Entity.Name,
-		SpeakerName:   npc.Entity.Name,
-		Prompt:        questionPrompt.PromptText,
-		RequestType:   humanize_protobuf.HumanizeRequest_REQUEST_TYPE_SEND_MESSAGE_TO_NPC,
-		Message:       askerResponse.Response,
-	})
+	response, err := g.chatGprClient.SendPrompt(
+		selectedNpc.Entity.Name,
+		npc.Entity.Name,
+		questionPrompt.PromptText,
+		humanize_protobuf.HumanizeRequest_REQUEST_TYPE_SEND_MESSAGE_TO_NPC,
+	)
 	askerResponse.Message = askerResponse.Response
 	response.Message = askerResponse.Response
 	if err != nil {
