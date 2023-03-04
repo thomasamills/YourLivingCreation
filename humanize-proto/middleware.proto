@@ -1,0 +1,146 @@
+syntax = "proto3";
+package middleware;
+
+option go_package = "/humanize-protobuf";
+
+service Connect{
+  rpc Connect (MiddleWareConnectReq) returns (MiddleWareConnectResp);
+  rpc SendText(SendTextRequest) returns (GetConversationInformationResponse);
+  rpc Commit(CommitRequest) returns (CommitResponse); // only for sync.
+  rpc GetConversationInformation(GetConversationInformationRequest) returns (GetConversationInformationResponse);
+}
+
+message CommitRequest{
+  string session_id = 1;
+  string message_id = 2;
+  enum Type{
+    COMMIT_TYPE_UNKNOWN = 0;
+    COMMIT_TYPE_ACCEPT = 1;
+    COMMIT_TYPE_REJECT = 2;
+  }
+  Type commit_type = 3;
+}
+
+message CommitResponse{
+  enum ResponseOutcome{
+    COMMIT_OUTCOME_UNKNOWN = 0;
+    COMMIT_OUTCOME_SUCCESSFUL = 1;
+    COMMIT_OUTCOME_FAILED = 2;
+  }
+  ResponseOutcome outcome = 1;
+  MessageResponseData message_response_data = 2;
+}
+
+message NpcRequestInformation{
+  string name = 1;
+  string prompt_set_id = 2;
+  string prompt_segment_set_id = 3;
+  string default_prompt_id = 4;
+  string preset_emotional_state_id = 5;
+  string personality_id = 6;
+  string actuation_rule_set_id = 7;
+  string gen_config_id = 8;
+  string actuation_prompt_set_id = 9;
+  string actuation_prompt_segment_set_id = 10;
+}
+
+
+message MiddleWareConnectReq{
+  string speaker_name = 1;
+  repeated NpcRequestInformation npc_information = 2;
+  bool start_async_game_loop = 3;
+  bool wait_for_commit_message_before_updating_state = 4;
+  bool start_narrative = 5;
+}
+
+message MiddleWareConnectResp{
+  string sessionId = 1;
+  string speakerNameId = 2;
+  // id to initial states
+  map<string, EmotionalState> npc_emotional_States = 3;
+  enum ConnectionStatus{
+    UNKNOWN = 0;
+    CONNECTED = 1;
+    FAILED = 2;
+  }
+  ConnectionStatus status = 4;
+  string errorMessage = 5;
+  map<string, string> npc_name_to_id = 6;
+}
+
+message SendTextRequest{
+  string sessionId = 1;
+  string message = 2;
+  bool is_action = 3;
+  string directed_entity_id = 4;
+  string additional_json = 5;
+}
+
+message GetConversationInformationRequest{
+  string sessionId = 1;
+}
+
+message MessageResponseData{
+  // Updated emotional states
+  string message = 1;
+  string response = 2;
+  string asker_emotion = 3;
+  string responder_emotion = 4;
+  string asker_name = 5;
+  string asker_id = 6;
+  string asker_triggered_action = 7;
+  string responder_name = 8;
+  string responder_id = 9;
+  string responder_triggered_emotion = 10;
+  EmotionalState asker_emotional_state_update = 11;
+  EmotionalState responder_emotional_state_update = 12;
+  bool asker_accepts_action = 13;
+  bool responder_accepts_action = 14;
+  string commit_token = 15;
+}
+
+message GetConversationInformationResponse{
+  string sessionId = 1;
+  // key: entity id
+  map<string, MessageResponseData> message_response_data = 3;
+  enum ConnectionStatus{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+  ConnectionStatus status = 4;
+  string errorMessage = 5;
+}
+
+message EmotionalState{
+  string entity_id = 1;
+  string personality_id = 2;
+  int32 composure = 3;
+  int32 likeness = 4;
+  map<string, EmotionalBound> emotional_bounds = 5;
+  repeated string fears = 6;
+  repeated string hobbies = 7;
+  bool is_preset = 8;
+}
+
+message EmotionalBound{
+  string entity_id = 1;
+  string bound_instance_id = 2;
+  string bound_id = 3;
+  int32 current_percentage = 4;
+  string upper_bound = 5;
+  string lower_bound = 6;
+  map<int32, SynonymList> synonyms = 7;
+  EmotionShiftMagnitude emotion_shift_magnitude = 8;
+}
+
+enum EmotionShiftMagnitude{
+  UNKNOWN = 0;
+  BOTTLING_UP = 1;
+  NEUTRAL = 2;
+  SHORT_FUSE = 3;
+}
+
+message SynonymList{
+  repeated string synonyms = 1;
+}

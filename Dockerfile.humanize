@@ -1,0 +1,15 @@
+FROM ubuntu:latest
+COPY ./ ./
+
+ENV HUMANIZE_PORT=2998
+
+RUN apt-get update
+RUN apt-get install python3 -y
+RUN apt-get install pip -y
+
+WORKDIR ./humanize
+RUN ./generate.sh
+
+EXPOSE 2998
+
+CMD python3 humanize_server.py

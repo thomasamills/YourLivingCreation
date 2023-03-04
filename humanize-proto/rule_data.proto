@@ -1,0 +1,148 @@
+syntax = "proto3";
+
+package rule_data;
+option go_package = "/humanize-protobuf";
+
+import "middleware.proto";
+
+message EmotionUpdateRule{
+  string rule_id = 1;
+  string name = 2;
+  string triggering_action = 3;
+  map<string, BoundShiftType> bound_shifts = 4;
+  repeated RulePart rule_parts = 5;
+  int32 percentage_of_proc = 6;
+  bool uses_composure = 7;
+  bool uses_likeness = 8;
+  string resulting_action = 9;
+  string personality_id = 10;
+  map<string, middleware.EmotionShiftMagnitude> emotion_magnitudes = 11;
+
+  enum BoundShiftType{
+    UNKNOWN = 0;
+    NEGATIVE_LOW = 1;
+    NEGATIVE_MEDIUM = 2;
+    NEGATIVE_HIGH = 4;
+    POSITIVE_LOW = 5;
+    POSITIVE_MEDIUM = 6;
+    POSITIVE_HIGH = 7;
+  }
+}
+
+message RulePart{
+  string description = 1;
+  RulePartType type = 2;
+  int32 percentage_of_proc = 3;
+  string bound_id = 4;
+  int32 bound_percentage = 5;
+  string rule_part_id = 6;
+  string rule_id = 7;
+  repeated string conversation_emotion_train = 8;
+
+  enum RulePartType{
+    UNKNOWN = 0;
+    IS_POSITIVE = 1;
+    IS_NEGATIVE = 2;
+    IS_POSITIVE_ABOVE_X_PERCENT = 3;
+    IS_NEGATIVE_BELOW_X_PERCENT = 5;
+    IS_ABOVE_X_PERCENT = 6;
+    IS_BELOW_X_PERCENT = 7;
+    WAS_PRECEDED_BY_NEGATIVE = 8;
+    WAS_PRECEDED_BY_POSITIVE = 9;
+    EMOTIONAL_SEQUENCE = 10;
+  }
+
+}
+
+
+enum ActuationRuleType{
+  RULE_TYPE_UNKNOWN = 0;
+  RULE_TYPE_PROMPT_INSERT = 1;
+  RULE_TYPE_PROMPT_SWITCH = 2;
+  RULE_TYPE_INCREMENT_SYNONYM_COUNTER = 3;
+  RULE_TYPE_DECREMENT_SYNONYM_COUNTER = 4;
+}
+
+message ActuationRule{
+  ActuationRuleType type = 1;
+  string actuation_rule_id = 2;
+  string personality_id = 3;
+  repeated RulePart rule_parts = 4;
+  string resulting_prompt_id = 5 [deprecated = true];
+  string resulting_prompt_segment_id = 6 [deprecated = true];
+  middleware.EmotionalState ideal_emotional_state = 7;
+  int32 percentage_of_proc = 8;
+  repeated BoundRuleTick bound_tick_acuations = 9;
+  string rule_name = 10;
+
+}
+
+message Prompt{
+  string prompt_id = 1;
+  string prompt_name = 2;
+  PromptType prompt_type = 3;
+  string prompt_text = 4;
+  string prompt_set_id = 5;
+  middleware.EmotionalState ideal_emotional_state = 6;
+  repeated RulePart rule_parts = 7;
+  float emotional_state_squared_difference = 8;
+  repeated PromptSegmentType required_prompt_segment_types = 9;
+}
+
+message PromptSegment{
+  string prompt_segment_id = 1;
+  string prompt_segment_set_id = 2;
+  PromptSegmentType type = 3;
+  middleware.EmotionalState ideal_emotional_state = 4;
+  repeated RulePart rule_parts = 5;
+  string message = 6;
+  int32 percentage_of_proc = 7;
+  float emotional_state_squared_difference = 8;
+}
+
+enum PromptSegmentType{
+  PROMPT_SEGMENT_TYPE_UNKNOWN = 0;
+  PROMPT_SEGMENT_TYPE_EMOTIONAL_PRIMER = 1;
+  PROMPT_SEGMENT_TYPE_MOTIVATIONAL_PRIMER = 2;
+  PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER = 3;
+  PROMPT_SEGMENT_TYPE_KNOWLEDGE_GRAPH_NEEDS_PRIMER = 4;
+}
+
+enum PromptType{
+  UNKNOWN = 0;
+  NAME_INSERT = 1;
+}
+
+
+enum RuleConditionType{
+  RULE_CONDITION_TYPE_UNKNOWN = 0;
+  IS_POSITIVE = 1;
+  IS_NEGATIVE = 2;
+  IS_POSITIVE_ABOVE_X_PERCENT = 3;
+  IS_NEGATIVE_BELOW_X_PERCENT = 5;
+  IS_ABOVE_X_PERCENT = 6;
+  IS_BELOW_X_PERCENT = 7;
+  WAS_PRECEDED_BY_NEGATIVE = 8;
+  WAS_PRECEDED_BY_POSITIVE = 9;
+}
+
+enum RuleTickType{
+  RULE_TICK_UNKNOWN = 0;
+  RULE_TICK_POSITIVE = 1;
+  RULE_TICK_NEGATIVE = 2;
+}
+
+enum EmotionalBoundType{
+  EMOTIONAL_BOUND_TYPE_UNKNOWN = 0;
+  EMOTIONAL_BOUND_TYPE_AGITATED_PATIENT = 1;
+  EMOTIONAL_BOUND_TYPE_SAD_HAPPY = 2;
+  EMOTIONAL_BOUND_TYPE_BURNED_OUT_AMBITIOUS = 3;
+  EMOTIONAL_BOUND_TYPE_HATE_LOVE = 4;
+}
+
+message BoundRuleTick{
+  EmotionalBoundType bound_type = 1;
+  RuleTickType action = 2;
+}
+
+

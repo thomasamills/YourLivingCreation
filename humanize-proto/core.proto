@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package core;
+option go_package = "/humanize-protobuf";
+
+message ConversationEntry{
+  string askerName = 1;
+  string askerId = 2;
+  string responderName = 3;
+  string responderId = 4;
+  string message_emotion = 5;
+  string message = 6;
+  string response = 7;
+  int32 conversation_entry_id = 10;
+  string response_emotion = 11;
+}
+
+message MemoryLog{
+  repeated ConversationEntry log = 1;
+}
+
+message GenerationConfig{
+  string generation_config_id = 1;
+  float temperature = 4;
+  float top_p = 5;
+  int64 top_k = 6;
+  float repetition_penalty = 7;
+  int64 length = 8;
+  repeated string stop_sequences = 9;
+  string character_prompt = 10;
+  int32 words_in_emotional_primer = 11;
+  int32 max_memory_log_entries = 12;
+}
+

@@ -1,0 +1,804 @@
+syntax = "proto3";
+
+package rule_api;
+option go_package = "/humanize-protobuf";
+
+import "middleware.proto";
+import "core.proto";
+import "rule_data.proto";
+
+service RuleApi{
+  // Listing (gives ids only, no need to read entire database)
+  rpc ListGenerationConfigs(ListGenerationConfigRequest) returns (ListGenerationConfigResponse);
+  rpc ListPersonalityIds(ListPersonalityIdsRequest) returns (ListPersonalityIdsResponse);
+  rpc ListPresetStateIds(ListPresetStateIdsRequest) returns (ListPresetStateIdsResponse);
+  rpc ListPromptSetIds(ListPromptSetIdsRequest) returns (ListPromptSetIdsResponse);
+  rpc ListPromptSegmentSetIds(ListPromptSegmentSetIdsRequest) returns (ListPromptSegmentSetIdsResponse);
+  rpc ListPrompts(ListPromptsRequest) returns (ListPromptsResponse);
+  rpc ListPromptSegments(ListPromptSegmentsRequest) returns (ListPromptSegmentsResponse);
+  rpc ListActuationRules(ListActuationRuleRequest) returns (ListActuationRuleResponse);
+
+  //  GetPersonality returns list of entire rules given a personality id (display these in a table by name)
+  //  this also includes rule parts
+  rpc GetPersonality(GetPersonalityRequest) returns (GetPersonalityResponse);
+  // Get emotional state returns emotional state object that also contains the emotional bounds
+  rpc GetEmotionalState(GetEmotionalStateRequest) returns (GetEmotionalStateResponse);
+  // Gets generation config (not including prompt)
+  rpc GetGenerationConfig(GetGenConfigRequest) returns (GetGenConfigResponse);
+  rpc GetPrompt(GetPromptRequest) returns (GetPromptResponse);
+  rpc GetPromptSegment(GetPromptSegmentRequest) returns (GetPromptSegmentResponse);
+  rpc GetActuationRuleSet(GetActuationRuleSetRequest) returns (GetActuationRuleSetResponse);
+  rpc GetActuationRule(GetActuationRuleRequest) returns (GetActuationRuleResponse);
+  rpc GetPromptSet(GetPromptSetRequest) returns (GetPromptSetResponse);
+  rpc GetPromptSegmentSet(GetPromptSegmentSetRequest) returns (GetPromptSegmentSetResponse);
+
+  // Create generation config
+  rpc CreateGenerationConfig(CreateGenerationConfigRequest) returns (CreateGenerationConfigResponse);
+  rpc CreatePrompt(CreatePromptRequest) returns (CreatePromptResponse);
+  rpc CreatePromptSegment(CreatePromptSegmentRequest) returns (CreatePromptSegmentResponse);
+  // Create personality rules
+  rpc CreatePersonalityRule(CreatePersonalityRuleRequest) returns (CreatePersonalityRuleResponse);
+  rpc CreatePersonalityRulePart(CreatePersonalityRulePartRequest) returns (CreatePersonalityRulePartResponse);
+  // Create emotional state
+  rpc CreatePresetState(CreatePresetStateRequest) returns (CreatePresetStateResponse);
+  rpc CreateEmotionalBound(CreateEmotionalBoundRequest) returns (CreateEmotionalBoundResponse);
+  rpc CreateActuationRuleSet(CreateActuationRuleSetRequest) returns (CreateActuationRuleSetResponse);
+  rpc CreateActuationRule(CreateActuationRuleRequest) returns (CreateActuationRuleResponse);
+
+
+  // Update generation config
+  rpc UpdateGenerationConfig(UpdateGenerationConfigRequest) returns (UpdateGenerationConfigResponse);
+  // Update personality rules
+  rpc UpdateEmotionalRule(UpdateEmotionalRuleRequest) returns (UpdateEmotionalRuleResponse);
+  rpc UpdateEmotionalRulePart(UpdateEmotionalRulePartRequest) returns (UpdateEmotionalRulePartResponse);
+  // Update emotional state
+  rpc UpdateEmotionalState(UpdateEmotionalStateRequest) returns (UpdateEmotionalStateResponse);
+  rpc UpdateEmotionalBound(UpdateEmotionalBoundRequest) returns (UpdateEmotionalBoundResponse);
+  rpc UpdatePrompt(UpdatePromptRequest) returns (UpdatePromptResponse);
+  rpc UpdatePromptSegment(UpdatePromptSegmentRequest) returns (UpdatePromptSegmentResponse);
+  rpc UpdateActuationRule(UpdateActuationRuleRequest) returns (UpdateActuationRuleResponse);
+
+
+  // Delete generation config
+  rpc DeleteGenerationConfig(DeleteGenerationConfigRequest) returns (DeleteGenerationConfigResponse);
+  // Delete personality rules
+  rpc DeletePersonality(DeletePersonalityRequest) returns (DeletePersonalityResponse);
+  rpc DeletePersonalityRule(DeletePersonalityRuleRequest) returns (DeletePersonalityRuleResponse);
+  rpc DeletePersonalityRulePart(DeletePersonalityRulePartRequest) returns (DeletePersonalityRulePartResponse);
+  // Delete emotional state
+  rpc DeleteEmotionalState(DeleteEmotionalStateRequest) returns (DeleteEmotionalStateResponse);
+  rpc DeleteEmotionalBound(DeleteEmotionalBoundRequest) returns (DeleteEmotionalBoundResponse);
+  rpc DeleteActuationRuleSet(DeleteActuationRuleSetRequest)  returns (DeleteActuationRuleSetResponse);
+  rpc DeleteActuationRule(DeleteActuationRuleRequest)  returns (DeleteActuationRuleResponse);
+  // Delete prompt and segment
+  rpc DeletePrompt(DeletePromptRequest) returns (DeletePromptResponse);
+  rpc DeletePromptSegment(DeletePromptSegmentRequest) returns (DeletePromptSegmentResponse);
+  // Delete whole prompt and prompt segment sets
+  rpc DeletePromptSet(DeletePromptSetRequest) returns (DeletePromptSetResponse);
+  rpc DeletePromptSegmentSet(DeletePromptSegmentSetRequest) returns(DeletePromptSegmentSetResponse);
+}
+
+message ListActuationRuleRequest{
+  string personality_id = 1;
+}
+
+message ListActuationRuleResponse{
+  repeated string rule_set_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message ListGenerationConfigRequest{
+}
+
+message ListGenerationConfigResponse{
+  repeated string config_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message ListPersonalityIdsRequest{
+}
+
+message ListPersonalityIdsResponse{
+  repeated string personality_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message ListPresetStateIdsRequest{
+}
+
+
+message ListPromptSetIdsRequest{
+
+}
+
+message ListPromptSetIdsResponse{
+  repeated string prompt_set_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message ListPromptSegmentSetIdsRequest{
+
+}
+
+message ListPromptSegmentSetIdsResponse{
+  repeated string prompt_segment_set_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message ListPresetStateIdsResponse{
+  repeated string preset_state_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message ListPromptsRequest{
+  string prompt_set_id = 1;
+}
+
+message ListPromptSegmentsRequest{
+  string prompt_segment_set_id = 1;
+}
+
+message ListPromptSegmentsResponse{
+  repeated string prompt_segment_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message ListPromptSegmentSetResponse{
+  repeated string prompt_segment_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message ListPromptsResponse{
+  repeated string prompt_ids = 1;
+  string error_message = 2;
+  Status status = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetPersonalityRequest{
+  string personality_id = 1;
+}
+
+message GetPersonalityResponse{
+  repeated rule_data.EmotionUpdateRule personality = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetEmotionalStateRequest{
+  string preset_state_id = 1;
+}
+
+message GetEmotionalStateResponse{
+  middleware.EmotionalState emotional_state = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetGenConfigRequest{
+  string gen_config_id = 1;
+}
+
+message GetGenConfigResponse{
+  core.GenerationConfig config = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetPromptRequest{
+  string prompt_id = 1;
+}
+
+message GetPromptResponse{
+  rule_data.Prompt prompt = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetPromptSegmentRequest{
+  string prompt_segment_id = 1;
+}
+
+message GetPromptSegmentResponse{
+  rule_data.PromptSegment prompt_segment = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message CreatePromptSegmentRequest{
+  rule_data.PromptSegment prompt_segment = 1;
+}
+
+message CreatePromptSegmentResponse{
+  string prompt_segment_id = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetPromptSetRequest{
+  string prompt_set_id = 1;
+}
+
+message GetPromptSetResponse{
+  repeated rule_data.Prompt prompts = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetPromptSegmentSetRequest{
+  string prompt_segment_set_id = 1;
+}
+
+message GetPromptSegmentSetResponse{
+  repeated rule_data.PromptSegment prompt_segments = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message UpdatePromptSegmentRequest{
+  rule_data.PromptSegment prompt_segment = 1;
+}
+
+message UpdatePromptSegmentResponse{
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetActuationRuleSetRequest{
+  string personality_id = 1;
+}
+
+message GetActuationRuleSetResponse{
+  repeated rule_data.ActuationRule rules = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message GetActuationRuleRequest{
+  string actuation_rule_id = 1;
+}
+
+message GetActuationRuleResponse{
+  rule_data.ActuationRule rule = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message CreateGenerationConfigRequest{
+  core.GenerationConfig config = 1;
+  string config_name = 2;
+}
+
+message CreateGenerationConfigResponse{
+  string generation_config_id = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message CreateActuationRuleSetRequest{
+  repeated rule_data.ActuationRule rule = 1;
+  string personality_id = 2;
+}
+
+message CreateActuationRuleSetResponse{
+  Status status = 1;
+  string error_message = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message CreateActuationRuleRequest{
+  rule_data.ActuationRule rule = 1;
+  string personality_id = 2;
+}
+
+message CreateActuationRuleResponse{
+  Status status = 1;
+  string error_message = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+
+message CreatePromptRequest{
+  rule_data.Prompt prompt = 1;
+}
+
+message CreatePromptResponse{
+  string prompt_id = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message CreatePersonalityRuleRequest{
+  rule_data.EmotionUpdateRule rule = 1;
+}
+
+message CreatePersonalityRuleResponse{
+  string rule_id = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message CreatePersonalityRulePartRequest{
+  string rule_id = 1;
+  rule_data.RulePart rule_part = 2;
+  string rule_part_name = 3;
+}
+
+message CreatePersonalityRulePartResponse{
+  string rule_part_id = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message CreatePresetStateRequest{
+  middleware.EmotionalState state = 2;
+}
+
+message CreatePresetStateResponse{
+  string preset_state_id = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message CreateEmotionalBoundRequest{
+  middleware.EmotionalBound bound = 2;
+}
+
+message CreateEmotionalBoundResponse{
+  string bound_instance_id = 1;
+  Status status = 2;
+  string error_message = 3;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+
+message UpdateGenerationConfigRequest{
+  string config_id = 1;
+  core.GenerationConfig config = 2;
+}
+
+message UpdateGenerationConfigResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message UpdateEmotionalRuleRequest{
+  string rule_id = 1;
+  rule_data.RulePart rule = 2;
+}
+
+message UpdateEmotionalRuleResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message UpdateActuationRuleSetRequest{
+  repeated rule_data.ActuationRule rule = 1;
+  string personality_id = 2;
+}
+
+message UpdateActuationRuleSetResponse{
+  Status status = 1;
+  string error_message = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message UpdateActuationRuleRequest{
+  string actuation_rule_id = 1;
+  rule_data.ActuationRule rule = 2;
+}
+
+message UpdateActuationRuleResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message UpdateEmotionalRulePartRequest{
+  string rule_id = 1;
+  rule_data.EmotionUpdateRule rule = 2;
+}
+
+message UpdateEmotionalRulePartResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message UpdateEmotionalStateRequest{
+  string state_id = 1;
+  middleware.EmotionalState state = 2;
+}
+
+message UpdateEmotionalStateResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message UpdateEmotionalBoundRequest{
+  string bound_instance_id = 1;
+  middleware.EmotionalState state = 2;
+}
+
+message UpdateEmotionalBoundResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message UpdatePromptRequest{
+  string prompt_id = 1;
+  rule_data.Prompt prompt = 2;
+}
+
+message UpdatePromptResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message DeleteEmotionalBoundRequest{
+  string bound_instance_id = 1;
+}
+
+message DeleteEmotionalBoundResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message DeleteActuationRuleSetRequest{
+  string personality_id = 1;
+}
+
+message DeleteActuationRuleSetResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message DeleteActuationRuleRequest{
+  string actuation_rule_id = 1;
+}
+
+message DeleteActuationRuleResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message DeletePersonalityRequest{
+  string personality_id = 1;
+}
+
+message DeletePersonalityResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+// Note that this cascades and will also delete all the bounds (on api side not frontend)
+message DeleteEmotionalStateRequest{
+  string emotional_state_request = 1;
+}
+
+message DeleteEmotionalStateResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message DeleteGenerationConfigRequest{
+  string generation_config_id = 1;
+}
+
+message DeleteGenerationConfigResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message DeletePersonalityRuleRequest{
+  string rule_id = 1;
+}
+
+message DeletePersonalityRuleResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message DeletePersonalityRulePartRequest{
+  string rule_part_id = 1;
+}
+
+message DeletePersonalityRulePartResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message DeletePromptRequest{
+  string prompt_id = 1;
+}
+
+message DeletePromptResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+message DeletePromptSegmentRequest{
+  string prompt_segment_id = 1;
+}
+
+message DeletePromptSegmentResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message DeletePromptSegmentSetRequest{
+  string prompt_segment_set_id = 1;
+}
+
+message DeletePromptSegmentSetResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+message DeletePromptSetRequest{
+  string prompt_set_id = 1;
+}
+
+message DeletePromptSetResponse{
+  string error_message = 1;
+  Status status = 2;
+  enum Status{
+    UNKNOWN = 0;
+    FAILED = 1;
+    SUCCESS = 2;
+  }
+}
+
+
+
