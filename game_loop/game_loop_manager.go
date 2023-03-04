@@ -418,6 +418,7 @@ func (g *GameLoopManagerImpl) SendMessage(
 		g.session.SpeakerName,
 		prompt.PromptText,
 		humanize_protobuf.HumanizeRequest_REQUEST_TYPE_SEND_MESSAGE_TO_NPC,
+		req.Message,
 	)
 	if err != nil {
 		errMessage := "could not get a response from gpt"
@@ -531,6 +532,7 @@ func (g *GameLoopManagerImpl) npcSpeakWithPlayer(npc *npcdata.NpcData) error {
 		g.session.SpeakerName,
 		autonomousPrompt.PromptText,
 		humanize_protobuf.HumanizeRequest_REQUEST_TYPE_AUTONOMOUS,
+		"",
 	)
 	if err != nil {
 		return err
@@ -584,6 +586,7 @@ func (g *GameLoopManagerImpl) npcSpeakWithTarget(npc *npcdata.NpcData) error {
 		selectedNpc.Entity.Name,
 		autonomousPrompt.PromptText,
 		humanize_protobuf.HumanizeRequest_REQUEST_TYPE_AUTONOMOUS,
+		"",
 	)
 	if err != nil {
 		return err
@@ -609,6 +612,7 @@ func (g *GameLoopManagerImpl) npcSpeakWithTarget(npc *npcdata.NpcData) error {
 		npc.Entity.Name,
 		questionPrompt.PromptText,
 		humanize_protobuf.HumanizeRequest_REQUEST_TYPE_SEND_MESSAGE_TO_NPC,
+		askerResponse.Response,
 	)
 	askerResponse.Message = askerResponse.Response
 	response.Message = askerResponse.Response
