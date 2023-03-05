@@ -2,6 +2,7 @@ package game_loop
 
 import (
 	"fmt"
+	"log"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 
@@ -16,6 +17,7 @@ type ChatGptClient interface {
 }
 
 type ChatGptClientImpl struct {
+	logger log.Logger
 }
 
 func (c ChatGptClientImpl) SendPrompt(
