@@ -151,7 +151,11 @@ type HumanizeDB interface {
 		promptId string,
 		upperTx *gorm.DB,
 	) error
-
+	ListPromptSegmentsBySetIdAndPrimerType(
+		promptSegmentSetId string,
+		primerType string,
+		upperTx *gorm.DB,
+	) ([]string, error)
 	CreatePromptSegment(
 		promptSegment *humanize_protobuf.PromptSegment,
 		upperTx *gorm.DB,
@@ -160,7 +164,7 @@ type HumanizeDB interface {
 		promptId string,
 		upperTx *gorm.DB,
 	) (*humanize_protobuf.PromptSegment, error)
-	ListPromptSegments(
+	ListPromptSegmentsBySetId(
 		promptSegmentSetId string,
 		upperTx *gorm.DB,
 	) ([]string, error)
@@ -210,18 +214,26 @@ type HumanizeDB interface {
 		promptSetId string,
 		upperTx *gorm.DB,
 	) ([]*humanize_protobuf.Prompt, error)
-	ListPromptSets(
+	GetPromptIdealStatesBySetId(
+		promptSetId string,
+		upperTx *gorm.DB,
+	) ([]IdealStateAndId, error)
+	ListPromptSetIds(
 		upperTx *gorm.DB,
 	) ([]string, error)
-
+	GetPromptSegmentIdealStateBySetIdAndPrimerType(
+		promptSegmentSetId string,
+		primerType string,
+		upperTx *gorm.DB,
+	) ([]IdealStateAndId, error)
 	GetPromptSegmentSet(
 		promptSegmentSetId string,
+		primerType string,
 		upperTx *gorm.DB,
 	) ([]*humanize_protobuf.PromptSegment, error)
 	ListPromptSegmentSets(
 		upperTx *gorm.DB,
 	) ([]string, error)
-
 	GetActuationRule(
 		id string, upperTx *gorm.DB,
 		byPersonalityId bool,

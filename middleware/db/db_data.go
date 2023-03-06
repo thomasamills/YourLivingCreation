@@ -128,23 +128,22 @@ type Quest struct {
 }
 
 type Prompt struct {
-	PromptId                  string `gorm:"primaryKey;autoIncrement:false;unique"`
-	PromptText                string
-	PromptType                int32
-	PromptName                string
-	PromptSetId               string
-	EmotionalSquareDifference float32
-	RequiredSegmentTypes      string // encoded from array of proto enums
+	PromptId             string `gorm:"primaryKey;autoIncrement:false;unique"`
+	PromptText           string
+	PromptType           int32
+	PromptName           string
+	PromptSetId          string
+	RequiredSegmentTypes string // encoded from array of proto enums
 }
 
 type PromptSegment struct {
-	PromptSegmentId           string `gorm:"primaryKey;autoIncrement:false;unique"`
-	Message                   string
-	PromptSegmentSetId        string
-	PromptSegmentType         int32
-	EmotionalSquareDifference float32
-	IdealEmotionalStateId     string
-	PercentageOfProc          int32
+	PromptSegmentId       string `gorm:"primaryKey;autoIncrement:false;unique"`
+	Message               string
+	PromptSegmentSetId    string
+	PromptSegmentType     int32
+	IdealEmotionalStateId string
+	PercentageOfProc      int32
+	PrimerType            string
 }
 
 type ActuationRule struct {

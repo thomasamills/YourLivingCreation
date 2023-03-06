@@ -2,9 +2,7 @@ package rule_system
 
 import (
 	"errors"
-	"fmt"
 	log "github.com/sirupsen/logrus"
-	"math"
 	"math/rand"
 	"sort"
 	"testserver/db"
@@ -39,7 +37,7 @@ func NewActuationRuleBasedSystemManager(
 }
 
 type IdAndDistance struct {
-	PromptId                   string
+	Id                         string
 	DifferenceFromCurrentState float64
 }
 
@@ -59,28 +57,21 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 		"session_id": session.SessionID,
 	}).Info("Attempting to generate prompt")
 	// first get the set of possible prompts
-	prompts, err := a.db.GetPromptSet(promptSetId, nil)
+	idAndStates, err := a.db.GetPromptIdealStatesBySetId(promptSetId, nil)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"session_id": session.SessionID,
+		}).Error("could not read possible prompts from database")
 		return nil, err
 	}
-	log.WithFields(log.Fields{
-		"session_id":    session.SessionID,
-		"prompt_set_id": promptSetId,
-	}).Info(fmt.Sprintf("%d possible prompts", len(prompts)))
-	if len(prompts) == 0 {
-		return nil, errors.New("no possible prompts")
-	}
 	// then find the current emotional state squared difference
-	currentEmotionalStateSquaredDifference :=
-		rule_system_utilties.CalculateEmotionalStateSquaredDifference(npcInformation.EmotionalState)
+	currentEmotionalState := npcInformation.EmotionalState
 	// now get all the ideal square differences for the prompts (map[bound_id]difference from current)
 	squareDifferences := make([]IdAndDistance, 0)
-	for _, prompt := range prompts {
+	for _, idAndState := range idAndStates {
 		squareDifferences = append(squareDifferences, IdAndDistance{
-			PromptId: prompt.PromptId,
-			DifferenceFromCurrentState: math.Abs(
-				float64(prompt.EmotionalStateSquaredDifference - currentEmotionalStateSquaredDifference),
-			),
+			Id:                         idAndState.Id,
+			DifferenceFromCurrentState: CalculateDifferenceBetweenTwoStates(currentEmotionalState, idAndState.State),
 		})
 	}
 	// sort map into descending list
@@ -92,9 +83,9 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 	var selectedPrompt *humanize_protobuf.Prompt
 	for _, promptDifference := range squareDifferences {
 		log.WithFields(log.Fields{
-			"prompt_id": promptDifference.PromptId,
+			"prompt_id": promptDifference.Id,
 		}).Info("processing rules for prompt")
-		prompt, err := a.db.GetPrompt(promptDifference.PromptId, nil)
+		prompt, err := a.db.GetPrompt(promptDifference.Id, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +94,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 		for _, rulePart := range prompt.RuleParts {
 			// Processing rule part
 			log.WithFields(log.Fields{
-				"prompt_id":    promptDifference.PromptId,
+				"prompt_id":    promptDifference.Id,
 				"rule_part_id": rulePart.RulePartId,
 			}).Info("assessing rule part")
 			perc := rand.Int31n(100)
@@ -113,7 +104,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 				if !rule_system_utilties.AssessRulePart(rulePart, bound, memLog) {
 					allRulePartsPassed = false
 					log.WithFields(log.Fields{
-						"prompt_id":          promptDifference.PromptId,
+						"prompt_id":          promptDifference.Id,
 						"rule_part_id":       rulePart.RulePartId,
 						"percentage_of_proc": rulePart.PercentageOfProc,
 						"percentage":         perc,
@@ -121,14 +112,14 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 					break
 				}
 				log.WithFields(log.Fields{
-					"prompt_id":          promptDifference.PromptId,
+					"prompt_id":          promptDifference.Id,
 					"rule_part_id":       rulePart.RulePartId,
 					"percentage_of_proc": rulePart.PercentageOfProc,
 					"percentage":         perc,
 				}).Info("rule part passed")
 			} else {
 				log.WithFields(log.Fields{
-					"prompt_id":          promptDifference.PromptId,
+					"prompt_id":          promptDifference.Id,
 					"rule_part_id":       rulePart.RulePartId,
 					"percentage_of_proc": rulePart.PercentageOfProc,
 					"percentage":         perc,
@@ -150,58 +141,41 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 	promptSegments := make([]*humanize_protobuf.PromptSegment, 0)
 	// As long as the prompt has possible prompt segments
 	if len(promptSegmentSetId) > 0 {
-		log.WithFields(log.Fields{
-			"prompt_id":             selectedPrompt.PromptId,
-			"prompt_segment_set_it": promptSegmentSetId,
-		}).Info("attempting to get the prompt segment set")
-		promptSegmentSet, err := a.db.GetPromptSegmentSet(promptSegmentSetId, nil)
-		if err != nil {
+		// For each needed primer
+		for _, neededPrimerType := range selectedPrompt.RequiredPromptSegmentTypes {
 			log.WithFields(log.Fields{
 				"prompt_id":             selectedPrompt.PromptId,
 				"prompt_segment_set_it": promptSegmentSetId,
-				"error_message":         err.Error(),
-			}).Error("error while attempting to get prompt segment set")
-			return nil, err
-		}
-		log.WithFields(log.Fields{
-			"prompt_id":             selectedPrompt.PromptId,
-			"prompt_segment_set_it": promptSegmentSetId,
-		}).Info("processing all possible prompt segments")
-		// Now calculate prompt segments to see if they should be added
-		// To do this we need to order segments by distance squared from current emotional state.
-		segmentDistanceSquaredFromEmotionalState := make([]IdAndDistance, 0)
-		for _, segment := range promptSegmentSet {
-			segmentDistanceSquaredFromEmotionalState =
-				append(segmentDistanceSquaredFromEmotionalState, IdAndDistance{
-					PromptId:                   segment.PromptSegmentId,
-					DifferenceFromCurrentState: float64(currentEmotionalStateSquaredDifference),
-				})
-		}
-		sort.SliceStable(segmentDistanceSquaredFromEmotionalState, func(i, j int) bool {
-			return segmentDistanceSquaredFromEmotionalState[i].DifferenceFromCurrentState <
-				segmentDistanceSquaredFromEmotionalState[j].DifferenceFromCurrentState
-		})
-		// to store which prompts are needed
-		requiredSegmentsForPrompt := make([]humanize_protobuf.PromptSegmentType, 0)
-		for _, neededPrompt := range selectedPrompt.RequiredPromptSegmentTypes {
-			requiredSegmentsForPrompt = append(requiredSegmentsForPrompt, neededPrompt)
-		}
-		for _, segment := range promptSegmentSet {
-			// First check if the prompt can hold another one of these primers
-			log.WithFields(log.Fields{
-				"session_id":        session.SessionID,
-				"prompt_id":         selectedPrompt.PromptId,
-				"prompt_segment_id": segment.PromptSegmentId,
-			}).Info("processing prompt segment")
-			containsSegment := false
-			for _, segmentType := range requiredSegmentsForPrompt {
-				if segment.Type == segmentType {
-					containsSegment = true
-					break
-				}
+			}).Info("attempting to get the ideal emotional states for the prompt_segment_set/primer_type combo")
+			idAndStates, err :=
+				a.db.GetPromptSegmentIdealStateBySetIdAndPrimerType(promptSetId, neededPrimerType.String(), nil)
+			if err != nil {
+				return nil, err
 			}
-			if containsSegment {
-				// calculate percentage of proc
+			log.WithFields(log.Fields{
+				"primer_type":           neededPrimerType.String(),
+				"prompt_segment_set_id": promptSegmentSetId,
+				"possible segments":     len(idAndStates),
+			}).Info("possible prompt segments for the primer type")
+			// Now calculate prompt segments to see if they should be added
+			// To do this we need to order segments by distance squared from current emotional state.
+			segmentDistanceSquaredFromEmotionalState := make([]IdAndDistance, 0)
+			for _, segment := range idAndStates {
+				segmentDistanceSquaredFromEmotionalState =
+					append(segmentDistanceSquaredFromEmotionalState, IdAndDistance{
+						Id:                         segment.Id,
+						DifferenceFromCurrentState: CalculateDifferenceBetweenTwoStates(currentEmotionalState, segment.State),
+					})
+			}
+			sort.SliceStable(segmentDistanceSquaredFromEmotionalState, func(i, j int) bool {
+				return segmentDistanceSquaredFromEmotionalState[i].DifferenceFromCurrentState <
+					segmentDistanceSquaredFromEmotionalState[j].DifferenceFromCurrentState
+			})
+			for _, segmentDetails := range segmentDistanceSquaredFromEmotionalState {
+				segment, err := a.db.GetPromptSegment(segmentDetails.Id, nil)
+				if err != nil {
+					return nil, err
+				}
 				perc := rand.Int31n(100)
 				if perc >= (100 - segment.PercentageOfProc) {
 					log.WithFields(log.Fields{
@@ -272,24 +246,6 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 							"percentage":            perc,
 							"prompt_segment_set_it": promptSegmentSetId,
 						}).Info("all rule parts have passed")
-						promptSegments = append(promptSegments, segment)
-						// now we need to remove this from the needed prompts
-						for i, neededSegmentType := range requiredSegmentsForPrompt {
-							if segment.Type == neededSegmentType {
-								remove(requiredSegmentsForPrompt, i)
-							}
-						}
-						log.WithFields(log.Fields{
-							"prompt_id":             selectedPrompt.PromptId,
-							"percentage_of_proc":    segment.PercentageOfProc,
-							"prompt_segment_type":   segment.Type,
-							"segment_id":            segment.PromptSegmentId,
-							"percentage":            perc,
-							"prompt_segment_set_it": promptSegmentSetId,
-						}).Info("no remaining segments")
-						if len(requiredSegmentsForPrompt) == 0 {
-							break
-						}
 					}
 				} else {
 					log.WithFields(log.Fields{
@@ -299,13 +255,6 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 						"prompt_segment_set_it": promptSegmentSetId,
 					}).Info("prompt segment has failed percentage check")
 				}
-			} else {
-				log.WithFields(log.Fields{
-					"session_id":        session.SessionID,
-					"prompt_id":         selectedPrompt.PromptId,
-					"prompt_segment_id": segment.PromptSegmentId,
-					"segment_type":      segment.Type,
-				}).Info("Segment type no longer required")
 			}
 		}
 	}

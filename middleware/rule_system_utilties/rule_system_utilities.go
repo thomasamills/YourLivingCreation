@@ -46,27 +46,3 @@ func AssessRulePart(
 	}
 	return false
 }
-
-func CalculateEmotionalStateSquaredDifference(
-	state *humanize_protobuf.EmotionalState,
-) float32 {
-	//get list of current percentages
-	percentages := make([]float32, 0)
-	for _, bound := range state.EmotionalBounds {
-		percentages = append(percentages, float32(bound.CurrentPercentage))
-	}
-	// first find mean
-	mean := float32(0)
-	for _, percentage := range percentages {
-		mean += percentage
-	}
-	mean = mean / float32(len(percentages))
-	// subtract the meean from each data value
-	result := float32(0)
-	for _, percentages := range percentages {
-		result += percentages - mean
-	}
-	// and square the result
-	result = result * result
-	return result
-}

@@ -263,3 +263,13 @@ func (e *EmotionalStateManagerImpl) LoadEmotionalStateFromPreset(
 	emotionalState.IsPreset = false
 	return emotionalState, nil
 }
+
+func CalculateDifferenceBetweenTwoStates(x, y *humanize_protobuf.EmotionalState) float64 {
+	difference := float64(0)
+	for _, bound := range x.EmotionalBounds {
+		correspondingBound := y.EmotionalBounds[bound.BoundId]
+		xPerc := bound.CurrentPercentage
+		yPerc := correspondingBound.CurrentPercentage
+	}
+	return difference
+}

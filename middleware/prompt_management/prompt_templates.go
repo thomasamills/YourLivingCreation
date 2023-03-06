@@ -11,13 +11,15 @@ import (
 )
 
 type PromptTemplate struct {
-	AskerName            *string
-	ResponderName        *string
-	EmotionalPrimer      *string
-	MotivationalPrimer   *string
-	KnowledgeGraphPrimer *string
-	MemLog               *string
-	Synonym              *string
+	AskerName             *string
+	ResponderName         *string
+	EmotionalPrimer       *string
+	MotivationalPrimer    *string
+	IdeologyPrimer        *string
+	ReligionPrimer        *string
+	PersonalityTypePrimer *string
+	MemLog                *string
+	Synonym               *string
 }
 
 func ParseStructIntoTemplate(input interface{}, templ string) ([]byte, error) {
@@ -103,6 +105,27 @@ func GeneratePromptFromList(
 			}
 			segmentsToAdd.MotivationalPrimer = &motivationalPrimer
 			break
+		case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER:
+			ideologyPrimer, err := ParseValuesIntoPrimer(segmentsToAdd, promptSegment.Message)
+			if err != nil {
+				return "", err
+			}
+			segmentsToAdd.IdeologyPrimer = &ideologyPrimer
+			break
+		case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_RELIGION_PRIMER:
+			religionPrimer, err := ParseValuesIntoPrimer(segmentsToAdd, promptSegment.Message)
+			if err != nil {
+				return "", err
+			}
+			segmentsToAdd.ReligionPrimer = &religionPrimer
+			break
+		case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_PERSONALITY_TYPE_PRIMER:
+			personalityTypePrimer, err := ParseValuesIntoPrimer(segmentsToAdd, promptSegment.Message)
+			if err != nil {
+				return "", err
+			}
+			segmentsToAdd.PersonalityTypePrimer = &personalityTypePrimer
+			break
 		}
 	}
 	byteArray, err := ParseStructIntoTemplate(segmentsToAdd, currentPrompt)
@@ -139,6 +162,5 @@ func GetEmotionalSynonym(
 			selectedSynonyms[j] = selectedSynonyms[j],
 			selectedSynonyms[i]
 	})
-
 	return selectedSynonyms[0], nil
 }

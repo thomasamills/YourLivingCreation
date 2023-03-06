@@ -3,7 +3,6 @@ package db
 import (
 	"errors"
 	"fmt"
-	"testserver/rule_system_utilties"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 
 	"gorm.io/gorm"
@@ -34,13 +33,12 @@ func (h *HumanizeDbImpl) CreatePrompt(
 		}
 
 		p := &Prompt{
-			PromptId:                  promptId,
-			PromptText:                prompt.PromptText,
-			PromptName:                prompt.PromptName,
-			PromptType:                int32(prompt.PromptType),
-			PromptSetId:               prompt.PromptSetId,
-			RequiredSegmentTypes:      h.encodePromptSegmentTypes(prompt.RequiredPromptSegmentTypes),
-			EmotionalSquareDifference: rule_system_utilties.CalculateEmotionalStateSquaredDifference(prompt.IdealEmotionalState),
+			PromptId:             promptId,
+			PromptText:           prompt.PromptText,
+			PromptName:           prompt.PromptName,
+			PromptType:           int32(prompt.PromptType),
+			PromptSetId:          prompt.PromptSetId,
+			RequiredSegmentTypes: h.encodePromptSegmentTypes(prompt.RequiredPromptSegmentTypes),
 		}
 
 		idealEmotionalStateErr := h.CreateEmotionalState(
@@ -107,7 +105,6 @@ func (h *HumanizeDbImpl) GetPrompt(
 		prompt.PromptName = result.PromptName
 		prompt.PromptSetId = result.PromptSetId
 		prompt.PromptText = result.PromptText
-		prompt.EmotionalStateSquaredDifference = result.EmotionalSquareDifference
 
 		requiredPromptSegments, err := h.decodePromptSegmentTypes(result.RequiredSegmentTypes)
 		if err != nil {
@@ -198,9 +195,6 @@ func (h *HumanizeDbImpl) UpdatePrompt(
 			PromptName:  prompt.PromptName,
 			PromptType:  int32(prompt.PromptType),
 			PromptSetId: prompt.PromptSetId,
-			EmotionalSquareDifference: rule_system_utilties.CalculateEmotionalStateSquaredDifference(
-				prompt.IdealEmotionalState,
-			),
 		}
 		// TODO also update for emotional state
 		err := tx.Updates(p)

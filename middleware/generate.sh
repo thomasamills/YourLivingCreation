@@ -67,15 +67,6 @@ ${PROTOC_BIN}/protoc --go-grpc_out=${OUT_DIR}  --proto_path="${PROTO_SRC_DIR}"  
     middleware.proto
 
 
-# compile protobuf code (humanize)
-${PROTOC_BIN}/protoc --go_out=${OUT_DIR}  --proto_path="${PROTO_SRC_DIR}" \
-    humanize.proto
-
-# compile grpc code (humanize)
-${PROTOC_BIN}/protoc --go-grpc_out=${OUT_DIR} --proto_path="${PROTO_SRC_DIR}" \
-    humanize.proto
-
-
 # compile grpc code (emotional state)
 ${PROTOC_BIN}/protoc --go-grpc_out=${OUT_DIR}  --proto_path="${PROTO_SRC_DIR}"  \
     rule_api.proto
