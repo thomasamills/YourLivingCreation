@@ -98,6 +98,7 @@ message PromptSegment{
   string message = 6;
   int32 percentage_of_proc = 7;
   float emotional_state_squared_difference = 8;
+  string primer_type = 9;
 }
 
 enum PromptSegmentType{
@@ -105,7 +106,8 @@ enum PromptSegmentType{
   PROMPT_SEGMENT_TYPE_EMOTIONAL_PRIMER = 1;
   PROMPT_SEGMENT_TYPE_MOTIVATIONAL_PRIMER = 2;
   PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER = 3;
-  PROMPT_SEGMENT_TYPE_KNOWLEDGE_GRAPH_NEEDS_PRIMER = 4;
+  PROMPT_SEGMENT_TYPE_RELIGION_PRIMER = 4;
+  PROMPT_SEGMENT_TYPE_PERSONALITY_TYPE_PRIMER = 5;
 }
 
 enum PromptType{

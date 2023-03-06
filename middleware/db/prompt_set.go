@@ -40,7 +40,44 @@ func (h *HumanizeDbImpl) GetPromptSet(
 	return prompts, nil
 }
 
-func (h *HumanizeDbImpl) ListPromptSets(
+func (h *HumanizeDbImpl) GetPromptIdealStatesBySetId(
+	promptSetId string,
+	upperTx *gorm.DB,
+) ([]IdealStateAndId, error) {
+	idAndStates := make([]IdealStateAndId, 0)
+	getPromptSet := func(tx *gorm.DB) error {
+		promptIds, err := h.ListPrompts(promptSetId, tx)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		for _, promptId := range promptIds {
+			emotionalState, err := h.GetEmotionalState(promptId, tx)
+			if err != nil {
+				return err
+			}
+			idAndStates = append(idAndStates, IdealStateAndId{
+				Id:    promptId,
+				State: emotionalState,
+			})
+		}
+		return nil
+	}
+	var err error
+	if upperTx != nil {
+		err = getPromptSet(upperTx)
+	} else {
+		err = h.mainDB.Transaction(func(tx *gorm.DB) error {
+			return getPromptSet(tx)
+		})
+	}
+	if err != nil {
+		return nil, err
+	}
+	return idAndStates, nil
+}
+
+func (h *HumanizeDbImpl) ListPromptSetIds(
 	upperTx *gorm.DB,
 ) ([]string, error) {
 	var arr []string

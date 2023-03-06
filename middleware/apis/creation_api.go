@@ -93,7 +93,7 @@ func (c CreationApiImpl) ListPrompts(
 func (c CreationApiImpl) ListPromptSetIds(
 	ctx context.Context, request *humanize_protobuf.ListPromptSetIdsRequest,
 ) (*humanize_protobuf.ListPromptSetIdsResponse, error) {
-	promptSetIds, err := c.db.ListPromptSets(nil)
+	promptSetIds, err := c.db.ListPromptSetIds(nil)
 	if err != nil {
 		errMessage := "could not retrieve list of preset state ids"
 		return &humanize_protobuf.ListPromptSetIdsResponse{
@@ -214,7 +214,7 @@ func (c CreationApiImpl) GetPromptSet(
 func (c CreationApiImpl) GetPromptSegmentSet(
 	ctx context.Context, request *humanize_protobuf.GetPromptSegmentSetRequest,
 ) (*humanize_protobuf.GetPromptSegmentSetResponse, error) {
-	promptSegmets, err := c.db.GetPromptSegmentSet(request.PromptSegmentSetId, nil)
+	promptSegments, err := c.db.GetPromptSegmentSet(request.PromptSegmentSetId, "", nil)
 	if err != nil {
 		errMessage := "could not retrieve promptSegme ts segment set with id: " + request.GetPromptSegmentSetId()
 		return &humanize_protobuf.GetPromptSegmentSetResponse{
@@ -223,7 +223,7 @@ func (c CreationApiImpl) GetPromptSegmentSet(
 		}, errors.New(errMessage)
 	}
 	return &humanize_protobuf.GetPromptSegmentSetResponse{
-		PromptSegments: promptSegmets,
+		PromptSegments: promptSegments,
 		Status:         humanize_protobuf.GetPromptSegmentSetResponse_SUCCESS,
 	}, nil
 }
