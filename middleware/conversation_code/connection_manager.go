@@ -1,14 +1,12 @@
-package connection_manager
+package conversation_code
 
 import (
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"testserver/conversation_code/rule_system"
 	"testserver/db"
-	"testserver/game_loop"
-	"testserver/id_gen"
-	"testserver/memory_manager"
-	emotional_state_manager "testserver/rule_system"
+	"testserver/db/id_gen"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 
@@ -26,23 +24,23 @@ type ConnectionManager interface {
 
 type ConnectionManagerImpl struct {
 	client                humanize_protobuf.HumanizeClient
-	emotionalStateManager emotional_state_manager.EmotionalStateManager
+	emotionalStateManager rule_system.EmotionalStateManager
 	db                    db.HumanizeDB
 	idGen                 id_gen.ULIDGenerator
-	promptCreation        emotional_state_manager.PromptRuleSystemManager
-	memoryManager         memory_manager.MemoryManager
+	promptCreation        rule_system.PromptRuleSystemManager
+	memoryManager         MemoryManager
 	gameLoopRegistry      GameLoopManagerRegistry
-	chatGptClient         game_loop.ChatGptClient
+	chatGptClient         ChatGptClient
 }
 
 func NewConnectionManager(
 	db db.HumanizeDB,
-	emotionalStateManager emotional_state_manager.EmotionalStateManager,
+	emotionalStateManager rule_system.EmotionalStateManager,
 	idGen id_gen.ULIDGenerator,
-	promptCreation emotional_state_manager.PromptRuleSystemManager,
-	memManager memory_manager.MemoryManager,
+	promptCreation rule_system.PromptRuleSystemManager,
+	memManager MemoryManager,
 	gameLoopRegistry GameLoopManagerRegistry,
-	chatGptClient game_loop.ChatGptClient,
+	chatGptClient ChatGptClient,
 ) (ConnectionManager, error) {
 	go func() {
 		if err := gameLoopRegistry.PurgeGameLoops(); err != nil {
@@ -167,7 +165,7 @@ func (cm *ConnectionManagerImpl) Connect(
 	}
 
 	// Initialize game loop
-	gameLoop := game_loop.NewGameLoopManager(
+	gameLoop := NewGameLoopManager(
 		cm.db,
 		cm.memoryManager,
 		cm.emotionalStateManager,

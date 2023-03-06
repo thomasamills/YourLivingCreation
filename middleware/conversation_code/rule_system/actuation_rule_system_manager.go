@@ -5,8 +5,8 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
+	"testserver/conversation_code/rule_system_utilties"
 	"testserver/db"
-	"testserver/rule_system_utilties"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 

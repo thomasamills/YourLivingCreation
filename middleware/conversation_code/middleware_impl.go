@@ -1,34 +1,31 @@
-package apis
+package conversation_code
 
 import (
 	"context"
 	"fmt"
-	humanize_client "testserver/connection_manager"
+	"testserver/conversation_code/rule_system"
 	"testserver/db"
-	"testserver/game_loop"
-	"testserver/id_gen"
-	"testserver/memory_manager"
-	emotional_state_manager "testserver/rule_system"
+	"testserver/db/id_gen"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 
 type MiddlewareApiImplementation struct {
 	idGen                 id_gen.ULIDGenerator
 	db                    db.HumanizeDB
-	connectionManager     humanize_client.ConnectionManager
-	emotionalStateManager emotional_state_manager.EmotionalStateManager
+	connectionManager     ConnectionManager
+	emotionalStateManager rule_system.EmotionalStateManager
 	humanize_protobuf.UnimplementedConnectServer
 }
 
 func NewMiddlewareApiImplementation(
 	db db.HumanizeDB, generator id_gen.ULIDGenerator,
 ) (*MiddlewareApiImplementation, error) {
-	emotionalStateManager := emotional_state_manager.NewEmotionalStateManager(db)
-	promptCreation := emotional_state_manager.NewActuationRuleBasedSystemManager(db, emotionalStateManager)
-	memoryManager := memory_manager.NewMemoryManager(db)
-	gameLoopRegistry := humanize_client.NewGameLoopManagerRegistry()
-	chatGptClient := game_loop.NewChatGptClient()
-	conversationManager, err := humanize_client.NewConnectionManager(
+	emotionalStateManager := rule_system.NewEmotionalStateManager(db)
+	promptCreation := rule_system.NewActuationRuleBasedSystemManager(db, emotionalStateManager)
+	memoryManager := NewMemoryManager(db)
+	gameLoopRegistry := NewGameLoopManagerRegistry()
+	chatGptClient := NewChatGptClient()
+	conversationManager, err := NewConnectionManager(
 		db,
 		emotionalStateManager,
 		generator,

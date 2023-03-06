@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"testserver/id_gen"
+	"testserver/db/id_gen"
 	"testserver/npc_profiles/character_profiles"
 	"testserver/npc_profiles/emotional_states"
 	"testserver/npc_profiles/rule_sets"

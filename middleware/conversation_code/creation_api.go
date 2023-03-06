@@ -1,10 +1,10 @@
-package apis
+package conversation_code
 
 import (
 	"context"
 	"errors"
 	"testserver/db"
-	"testserver/id_gen"
+	"testserver/db/id_gen"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 
