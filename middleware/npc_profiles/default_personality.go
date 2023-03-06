@@ -1,4 +1,4 @@
-package rule_sets
+package npc_profiles
 
 import humanize_protobuf "testserver/src/generated/humanize-protobuf"
 

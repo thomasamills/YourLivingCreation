@@ -5,10 +5,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"sort"
+	"testserver/conversation_code/prompt_management"
+	"testserver/conversation_code/rule_system_utilties"
 	"testserver/db"
-	npcdata "testserver/npcs"
-	"testserver/prompt_management"
-	"testserver/rule_system_utilties"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 
@@ -17,7 +16,7 @@ type PromptRuleSystemManager interface {
 		session db.Session,
 		memLog *humanize_protobuf.MemoryLog,
 		askerName, responderName string,
-		npcInformation *npcdata.NpcData,
+		npcInformation *db.NpcData,
 	) (*humanize_protobuf.Prompt, error)
 }
 
@@ -49,7 +48,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 	session db.Session,
 	memLog *humanize_protobuf.MemoryLog,
 	askerName, responderName string,
-	npcInformation *npcdata.NpcData,
+	npcInformation *db.NpcData,
 ) (*humanize_protobuf.Prompt, error) {
 	promptSetId := npcInformation.Entity.PromptSetId
 	promptSegmentSetId := npcInformation.Entity.PromptSegmentSetId

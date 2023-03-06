@@ -1,7 +1,6 @@
-package npcdata
+package db
 
 import (
-	"testserver/db"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 	"time"
 )
@@ -15,7 +14,7 @@ type NpcData struct {
 	AverageInputInterval time.Duration
 	NpcRequestChannel    chan *ActionRequest
 	NpcStopChannel       chan bool
-	Entity               *db.Entity
+	Entity               *Entity
 	IsPaused             bool
 }
 
