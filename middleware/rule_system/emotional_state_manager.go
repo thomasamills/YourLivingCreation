@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"math"
 	"math/rand"
 	"testserver/db"
 	npcdata "testserver/npcs"
@@ -268,8 +269,9 @@ func CalculateDifferenceBetweenTwoStates(x, y *humanize_protobuf.EmotionalState)
 	difference := float64(0)
 	for _, bound := range x.EmotionalBounds {
 		correspondingBound := y.EmotionalBounds[bound.BoundId]
-		xPerc := bound.CurrentPercentage
-		yPerc := correspondingBound.CurrentPercentage
+		xPer := bound.CurrentPercentage
+		yPer := correspondingBound.CurrentPercentage
+		difference += math.Abs(float64(xPer - yPer))
 	}
 	return difference
 }
