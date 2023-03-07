@@ -1,4 +1,4 @@
-package conversation_code
+package game_loop
 
 import (
 	"errors"

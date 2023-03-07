@@ -8,6 +8,7 @@ import (
 
 func (h *HumanizeDbImpl) CreateEmotionalBound(
 	bound *humanize_protobuf.EmotionalBound,
+	boundId string,
 	entityId string, // if we are overriding the entity id
 	upperTx *gorm.DB,
 ) (string, error) {
@@ -17,6 +18,9 @@ func (h *HumanizeDbImpl) CreateEmotionalBound(
 	}
 	if len(entityId) == 0 {
 		entityId = bound.EntityId
+	}
+	if len(boundId) > 0 {
+		bound.BoundId = boundId
 	}
 	createEmotionalBound := func(tx *gorm.DB) error {
 		b := &EmotionalBound{

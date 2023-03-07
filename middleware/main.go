@@ -4,7 +4,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"testserver/conversation_code"
+	"testserver/apis"
 	"testserver/db"
 	"testserver/db/id_gen"
 	"testserver/grpc_server"
@@ -28,11 +28,11 @@ func main() {
 	// Can be any io.Writer, see below for File example
 	log.SetOutput(os.Stdout)
 
-	middlewareServer, err := conversation_code.NewMiddlewareApiImplementation(db, idGen)
+	middlewareServer, err := apis.NewMiddlewareApiImplementation(db, idGen)
 	if err != nil {
 		log.Fatal(err)
 	}
-	creationServer := conversation_code.NewCreationApi(db, idGen)
+	creationServer := apis.NewCreationApi(db, idGen)
 	fmt.Println("serving on " + address)
 	waitChan := make(chan bool, 0)
 	go func() {

@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"math"
 	"math/rand"
+	"testserver/conversation_code/npc_data"
 	"testserver/conversation_code/rule_system_utilties"
 	"testserver/db"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
@@ -19,7 +20,7 @@ type EmotionalStateManager interface {
 		usesComposure bool, composure int32,
 	) error
 	ProcessEmotionalStateRules(
-		npc db.NpcData, triggers []string,
+		npc npc_data.NpcData, triggers []string,
 	) (*humanize_protobuf.EmotionalState, []string, error)
 	GetEmotionalState(entityId string) (*humanize_protobuf.EmotionalState, error)
 
@@ -137,7 +138,7 @@ func (e *EmotionalStateManagerImpl) UpdateEmotionalState(
 }
 
 func (e *EmotionalStateManagerImpl) ProcessEmotionalStateRules(
-	npc db.NpcData, triggers []string,
+	npc npc_data.NpcData, triggers []string,
 ) (*humanize_protobuf.EmotionalState, []string, error) {
 	triggerString := ""
 	for _, trigger := range triggers {
@@ -265,6 +266,9 @@ func (e *EmotionalStateManagerImpl) LoadEmotionalStateFromPreset(
 }
 
 func CalculateDifferenceBetweenTwoStates(x, y *humanize_protobuf.EmotionalState) float64 {
+	if x == nil {
+		return 0
+	}
 	difference := float64(0)
 	for _, bound := range x.EmotionalBounds {
 		correspondingBound := y.EmotionalBounds[bound.BoundId]

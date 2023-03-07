@@ -7,8 +7,13 @@ import (
 	"strings"
 	"testserver/db/id_gen"
 	"testserver/npc_profiles/character_profiles"
+	"testserver/npc_profiles/emotional_personalities"
+	"testserver/npc_profiles/emotional_primers"
 	"testserver/npc_profiles/emotional_states"
-	"testserver/npc_profiles/rule_sets"
+	"testserver/npc_profiles/ideology"
+	"testserver/npc_profiles/needs"
+	"testserver/npc_profiles/personality_types"
+	"testserver/npc_profiles/prompts"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 
 	"github.com/sirupsen/logrus"
@@ -18,21 +23,18 @@ import (
 
 type HumanizeDB interface {
 	Init() error
-
 	CreateEntity(
 		id, name, sessionId,
-		personalityId,
-		generationConfigId, promptSetId,
-		promptSegmentSetId, promptId,
-		actuationSetId, automationPromptSetId,
-		automationPromptSetSegmentId string,
+		promptId,
+		generationConfigId string,
+		personalityIds, promptSetIds,
+		needsIds, actuationSetIds,
+		religionIds, ideologyIds,
+		personalityTypeIds,
+		emotionalPrimerIds []string,
 	) bool
 	GetEntity(
 		entityId string,
-	) (*Entity, error)
-	UpdateEntityNeeds(
-		entityId string,
-		needs []string,
 	) (*Entity, error)
 	CreateSession(
 		sessionId,
@@ -105,7 +107,7 @@ type HumanizeDB interface {
 		upperTx *gorm.DB,
 	) error
 	GetPersonality(
-		personalityId string,
+		personalityIds []string,
 		upperTx *gorm.DB,
 	) ([]*humanize_protobuf.EmotionUpdateRule, error)
 	ListPersonalities() ([]string, error)
@@ -116,6 +118,7 @@ type HumanizeDB interface {
 
 	CreateEmotionalBound(
 		bound *humanize_protobuf.EmotionalBound,
+		boundId string,
 		entityId string, // if we are overriding the entity id
 		upperTx *gorm.DB,
 	) (string, error)
@@ -274,7 +277,7 @@ func NewHumanizeDb() HumanizeDB {
 	// Default human
 	err := db.SavePersonality(
 		"DEFAULT_PERSONALITY",
-		rule_sets.DefaultPersonality,
+		emotional_personalities.DefaultPersonality,
 		nil,
 	)
 	if err != nil {
@@ -296,6 +299,31 @@ func NewHumanizeDb() HumanizeDB {
 	)
 	if err != nil {
 		logrus.Error("could not save the default config")
+	}
+
+	_, err = db.CreatePrompt(prompts.FarRightPubManNormal, nil)
+	if err != nil {
+		logrus.Error("could not far right pub man normal prompt")
+	}
+	_, err = db.CreatePrompt(prompts.YoungFarLeftSoberManNormal, nil)
+	if err != nil {
+		logrus.Error("could not young far left sober man prompt" + err.Error())
+	}
+	_, err = db.CreatePromptSegment(needs.FoodPromptSegmentNormal, nil)
+	if err != nil {
+		logrus.Error("could not create food need prompt normal")
+	}
+	_, err = db.CreatePromptSegment(personality_types.ISTJPersonalityPromptSegmentSegmentNormal, nil)
+	if err != nil {
+		logrus.Error("could not create itsj personality types normal")
+	}
+	_, err = db.CreatePromptSegment(ideology.CapitalistPromptSegmentNormal, nil)
+	if err != nil {
+		logrus.Error("could not create capitalist prompt segment normal")
+	}
+	_, err = db.CreatePromptSegment(emotional_primers.DefaultEmotionalPrimerNormal, nil)
+	if err != nil {
+		logrus.Error("could not create default emotional primer normal")
 	}
 	return db
 }

@@ -29,7 +29,34 @@ func main() {
 	connectionResponse, err := client.Connect(context.Background(), &humanize_protobuf.MiddleWareConnectReq{
 		SpeakerName: speakerName,
 		NpcInformation: []*humanize_protobuf.NpcRequestInformation{
-			{},
+			{
+				Name:                         "Bob",
+				PresetEmotionalStateId:       "DEFAULT_EMOTIONAL_STATE",
+				DefaultPromptId:              "FAR_RIGHT_PUB_MAN_PROMPT",
+				GenConfigId:                  "DEFAULT_CONFIG",
+				PersonalityIds:               []string{"DEFAULT_PERSONALITY"},
+				PromptSetId:                  []string{"FAR_RIGHT_PUB_MAN_PROMPT_SET"},
+				NeedsPromptSegmentSetIds:     []string{"BASIC_HUMAN_NEEDS_PROMPT_SEGMENT_SET"},
+				ReligionSegmentSetIds:        []string{"CHRISTIANITY_PROMPT_SEGMENT_SET_ID"},
+				IdeologySegmentSetIds:        []string{"CAPITALIST_IDEOLOGY_PROMPT_SEGMENT_SET"},
+				PersonalityTypeSegmentSetIds: []string{"ISTJ_PERSONALITY_TYPE_PROMPT_SEGMENT_SET"},
+				EmotionalPrimerIds:           []string{"DEFAULT_EMOTIONAL_PRIMER_SET_ID"},
+				ActuationRuleSetIds:          []string{"FAKE"},
+			},
+			{
+				Name:                         "Alan",
+				PresetEmotionalStateId:       "DEFAULT_EMOTIONAL_STATE",
+				DefaultPromptId:              "YOUNG_FAR_LEFT_SOBER_MAN_PROMPT",
+				GenConfigId:                  "DEFAULT_CONFIG",
+				PersonalityIds:               []string{"DEFAULT_PERSONALITY"},
+				PromptSetId:                  []string{"YOUNG_FAR_LEFT_SOBER_MAN_PROMPT_SET"},
+				NeedsPromptSegmentSetIds:     []string{"BASIC_HUMAN_NEEDS_PROMPT_SEGMENT_SET"},
+				ReligionSegmentSetIds:        []string{"CHRISTIANITY_PROMPT_SEGMENT_SET_ID"},
+				IdeologySegmentSetIds:        []string{"SOCIALIST_IDEOLOGY_PROMPT_SEGMENT_SET"},
+				PersonalityTypeSegmentSetIds: []string{"ISTJ_PERSONALITY_TYPE_PROMPT_SEGMENT_SET"},
+				EmotionalPrimerIds:           []string{"DEFAULT_EMOTIONAL_PRIMER_SET_ID"},
+				ActuationRuleSetIds:          []string{"FAKE"},
+			},
 		},
 		StartAsyncGameLoop:                      true,
 		WaitForCommitMessageBeforeUpdatingState: false,
@@ -39,9 +66,11 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	npc1Name := "Bob"
+	npc2Name := "Alan"
+
 	npc1Id := connectionResponse.NpcNameToId[npc1Name]
 	npc2Id := connectionResponse.NpcNameToId[npc2Name]
-	npc3Id := connectionResponse.NpcNameToId[npc3Name]
 
 	sessionId := connectionResponse.SessionId
 
@@ -86,15 +115,12 @@ func main() {
 		npcId := ""
 		npcName := ""
 
-		if inputText == "l" {
+		if inputText == "b" {
 			npcId = npc1Id
 			npcName = npc1Name
-		} else if inputText == "e" {
+		} else if inputText == "a" {
 			npcId = npc2Id
 			npcName = npc2Name
-		} else if inputText == "p" {
-			npcId = npc3Id
-			npcName = npc3Name
 		}
 
 		if len(npcId) > 0 {

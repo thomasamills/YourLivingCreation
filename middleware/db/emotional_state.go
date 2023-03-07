@@ -30,8 +30,8 @@ func (h *HumanizeDbImpl) CreateEmotionalState(
 		if txErr.Error != nil {
 			return txErr.Error
 		}
-		for _, boundary := range state.EmotionalBounds {
-			_, err := h.CreateEmotionalBound(boundary, entityId, tx)
+		for boundId, boundary := range state.EmotionalBounds {
+			_, err := h.CreateEmotionalBound(boundary, boundId, entityId, tx)
 			if err != nil {
 				return err
 			}

@@ -1,4 +1,4 @@
-package conversation_code
+package apis
 
 import (
 	"context"
@@ -129,7 +129,7 @@ func (c CreationApiImpl) ListPromptSegmentSetIds(
 func (c CreationApiImpl) GetPersonality(
 	ctx context.Context, request *humanize_protobuf.GetPersonalityRequest,
 ) (*humanize_protobuf.GetPersonalityResponse, error) {
-	personality, err := c.db.GetPersonality(request.PersonalityId, nil)
+	personality, err := c.db.GetPersonality([]string{}, nil)
 	if err != nil {
 		errMessage := "could not retrieve personality with id: " + request.GetPersonalityId()
 		return &humanize_protobuf.GetPersonalityResponse{
@@ -351,7 +351,7 @@ func (c CreationApiImpl) CreateEmotionalBound(
 	ctx context.Context,
 	request *humanize_protobuf.CreateEmotionalBoundRequest,
 ) (*humanize_protobuf.CreateEmotionalBoundResponse, error) {
-	boundInstanceId, err := c.db.CreateEmotionalBound(request.Bound, "", nil)
+	boundInstanceId, err := c.db.CreateEmotionalBound(request.Bound, "", "", nil)
 	if err != nil {
 		errMessage := "could not create the personality rule"
 		return &humanize_protobuf.CreateEmotionalBoundResponse{

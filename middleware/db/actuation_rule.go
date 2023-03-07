@@ -109,7 +109,6 @@ func (h *HumanizeDbImpl) GetActuationRuleSet(
 	upperTx *gorm.DB,
 ) ([]*humanize_protobuf.ActuationRule, error) {
 	actuationRules := make([]*humanize_protobuf.ActuationRule, 0)
-
 	getActuationRules := func(tx *gorm.DB) error {
 		rule, err := h.GetActuationRule(personalityId, tx, true)
 		if err != nil {

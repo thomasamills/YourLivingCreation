@@ -1,8 +1,12 @@
-package conversation_code
+package apis
 
 import (
 	"context"
 	"fmt"
+	"testserver/conversation_code/connections"
+	"testserver/conversation_code/game_loop"
+	"testserver/conversation_code/gpt"
+	"testserver/conversation_code/memory"
 	"testserver/conversation_code/rule_system"
 	"testserver/db"
 	"testserver/db/id_gen"
@@ -12,7 +16,7 @@ import (
 type MiddlewareApiImplementation struct {
 	idGen                 id_gen.ULIDGenerator
 	db                    db.HumanizeDB
-	connectionManager     ConnectionManager
+	connectionManager     connections.ConnectionManager
 	emotionalStateManager rule_system.EmotionalStateManager
 	humanize_protobuf.UnimplementedConnectServer
 }
@@ -22,10 +26,10 @@ func NewMiddlewareApiImplementation(
 ) (*MiddlewareApiImplementation, error) {
 	emotionalStateManager := rule_system.NewEmotionalStateManager(db)
 	promptCreation := rule_system.NewActuationRuleBasedSystemManager(db, emotionalStateManager)
-	memoryManager := NewMemoryManager(db)
-	gameLoopRegistry := NewGameLoopManagerRegistry()
-	chatGptClient := NewChatGptClient()
-	conversationManager, err := NewConnectionManager(
+	memoryManager := memory.NewMemoryManager(db)
+	gameLoopRegistry := game_loop.NewGameLoopManagerRegistry()
+	chatGptClient, err := gpt.NewChatGptClient()
+	conversationManager, err := connections.NewConnectionManager(
 		db,
 		emotionalStateManager,
 		generator,

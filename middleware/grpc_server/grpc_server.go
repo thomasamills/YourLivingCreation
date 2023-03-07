@@ -5,11 +5,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
-	"testserver/conversation_code"
+	"testserver/apis"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 
-func ServeMiddlewareAPI(address string, apiServer *conversation_code.MiddlewareApiImplementation) error {
+func ServeMiddlewareAPI(address string, apiServer *apis.MiddlewareApiImplementation) error {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func ServeMiddlewareAPI(address string, apiServer *conversation_code.MiddlewareA
 	return nil
 }
 
-func ServeCreationAPI(address string, apiServer *conversation_code.CreationApiImpl) error {
+func ServeCreationAPI(address string, apiServer *apis.CreationApiImpl) error {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		return err

@@ -1,9 +1,12 @@
-package conversation_code
+package connections
 
 import (
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"testserver/conversation_code/game_loop"
+	"testserver/conversation_code/gpt"
+	"testserver/conversation_code/memory"
 	"testserver/conversation_code/rule_system"
 	"testserver/db"
 	"testserver/db/id_gen"
@@ -28,9 +31,9 @@ type ConnectionManagerImpl struct {
 	db                    db.HumanizeDB
 	idGen                 id_gen.ULIDGenerator
 	promptCreation        rule_system.PromptRuleSystemManager
-	memoryManager         MemoryManager
-	gameLoopRegistry      GameLoopManagerRegistry
-	chatGptClient         ChatGptClient
+	memoryManager         memory.MemoryManager
+	gameLoopRegistry      game_loop.GameLoopManagerRegistry
+	chatGptClient         gpt.ChatGptClient
 }
 
 func NewConnectionManager(
@@ -38,9 +41,9 @@ func NewConnectionManager(
 	emotionalStateManager rule_system.EmotionalStateManager,
 	idGen id_gen.ULIDGenerator,
 	promptCreation rule_system.PromptRuleSystemManager,
-	memManager MemoryManager,
-	gameLoopRegistry GameLoopManagerRegistry,
-	chatGptClient ChatGptClient,
+	memManager memory.MemoryManager,
+	gameLoopRegistry game_loop.GameLoopManagerRegistry,
+	chatGptClient gpt.ChatGptClient,
 ) (ConnectionManager, error) {
 	go func() {
 		if err := gameLoopRegistry.PurgeGameLoops(); err != nil {
@@ -96,14 +99,18 @@ func (cm *ConnectionManagerImpl) Connect(
 	) (*humanize_protobuf.MiddleWareConnectResp, error) {
 		id := cm.idGen.GetULIDfromtime()
 		success := cm.db.CreateEntity(
-			id, npcInformation.Name,
-			sessionId, npcInformation.PersonalityId,
-			npcInformation.GenConfigId, npcInformation.PromptSetId,
-			npcInformation.PromptSegmentSetId, npcInformation.DefaultPromptId,
-			npcInformation.ActuationRuleSetId, npcInformation.ActuationPromptSetId,
-			npcInformation.ActuationPromptSegmentSetId,
+			id, npcInformation.Name, sessionId,
+			npcInformation.DefaultPromptId,
+			npcInformation.GenConfigId,
+			npcInformation.PersonalityIds,
+			npcInformation.PromptSetId,
+			npcInformation.NeedsPromptSegmentSetIds,
+			npcInformation.ActuationRuleSetIds,
+			npcInformation.ReligionSegmentSetIds,
+			npcInformation.IdeologySegmentSetIds,
+			npcInformation.PersonalityIds,
+			npcInformation.EmotionalPrimerIds,
 		)
-
 		if success != true {
 			logrus.WithFields(logrus.Fields{
 				"session_id":  sessionId,
@@ -165,7 +172,7 @@ func (cm *ConnectionManagerImpl) Connect(
 	}
 
 	// Initialize game loop
-	gameLoop := NewGameLoopManager(
+	gameLoop := game_loop.NewGameLoopManager(
 		cm.db,
 		cm.memoryManager,
 		cm.emotionalStateManager,
@@ -246,7 +253,7 @@ func (cm *ConnectionManagerImpl) validateConnectResp(
 	}
 	// validate individual npc information
 	for _, npc := range req.NpcInformation {
-		if len(npc.ActuationRuleSetId) == 0 {
+		if len(npc.ActuationRuleSetIds) == 0 {
 			return humanize_protobuf.MiddleWareConnectResp_FAILED,
 				fmt.Sprintf("No actuation rule set id for %s", npc.Name)
 		}
@@ -254,7 +261,7 @@ func (cm *ConnectionManagerImpl) validateConnectResp(
 			return humanize_protobuf.MiddleWareConnectResp_FAILED,
 				fmt.Sprintf("No prompt set id for %s", npc.Name)
 		}
-		if len(npc.PromptSegmentSetId) == 0 {
+		if len(npc.PromptSetId) == 0 {
 			return humanize_protobuf.MiddleWareConnectResp_FAILED,
 				fmt.Sprintf("No prompt segment set id for %s", npc.Name)
 		}
@@ -262,7 +269,7 @@ func (cm *ConnectionManagerImpl) validateConnectResp(
 			return humanize_protobuf.MiddleWareConnectResp_FAILED,
 				fmt.Sprintf("No default prompt id for %s", npc.Name)
 		}
-		if len(npc.PersonalityId) == 0 {
+		if len(npc.PersonalityIds) == 0 {
 			return humanize_protobuf.MiddleWareConnectResp_FAILED,
 				fmt.Sprintf("No personality id for %s", npc.Name)
 		}

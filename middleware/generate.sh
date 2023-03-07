@@ -38,7 +38,7 @@ cd ${DIR}
 
 
 # create output directory if it doesnt exist
-PROTO_SRC_DIR=${DIR}/humanize-proto
+PROTO_SRC_DIR=${DIR}/proto
 OUT_DIR=${DIR}/src/generated
 if [[ ! -e ${OUT_DIR} ]]; then
     mkdir ${OUT_DIR} -p
