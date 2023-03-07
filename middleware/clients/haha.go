@@ -177,6 +177,5 @@ func commit(commitToken *C.char) *C.char {
 }
 
 func main() {
-	startSession("Tom")
-	print(sendMessage("Hello, who are you?"))
+
 }

@@ -351,7 +351,7 @@ func (c CreationApiImpl) CreateEmotionalBound(
 	ctx context.Context,
 	request *humanize_protobuf.CreateEmotionalBoundRequest,
 ) (*humanize_protobuf.CreateEmotionalBoundResponse, error) {
-	boundInstanceId, err := c.db.CreateEmotionalBound(request.Bound, "", nil)
+	boundInstanceId, err := c.db.CreateEmotionalBound(request.Bound, "", "", nil)
 	if err != nil {
 		errMessage := "could not create the personality rule"
 		return &humanize_protobuf.CreateEmotionalBoundResponse{

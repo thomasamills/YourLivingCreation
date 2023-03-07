@@ -118,6 +118,7 @@ type HumanizeDB interface {
 
 	CreateEmotionalBound(
 		bound *humanize_protobuf.EmotionalBound,
+		boundId string,
 		entityId string, // if we are overriding the entity id
 		upperTx *gorm.DB,
 	) (string, error)
@@ -306,7 +307,7 @@ func NewHumanizeDb() HumanizeDB {
 	}
 	_, err = db.CreatePrompt(prompts.YoungFarLeftSoberManNormal, nil)
 	if err != nil {
-		logrus.Error("could no young far left sober man prompt")
+		logrus.Error("could not young far left sober man prompt" + err.Error())
 	}
 	_, err = db.CreatePromptSegment(needs.FoodPromptSegmentNormal, nil)
 	if err != nil {

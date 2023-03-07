@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	OpenAIKey = "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"
+	OpenAIKey = "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"
 )
 
 type ChatGptClient interface {
@@ -65,9 +65,16 @@ func (c *ChatGptClientImpl) SendPrompt(
 	if err != nil {
 		return nil, nil
 	}
+	content := ""
+	for _, choice := range resp.Choices {
+		if choice.Message != nil {
+			content = choice.Message.Content
+			break
+		}
+	}
 	return &humanize_protobuf.HumanizeResponse{
 		Message:        message,
-		Response:       resp.Choices[0].Message.Content,
+		Response:       content,
 		NpcTextEmotion: "neutral",
 	}, nil
 }
