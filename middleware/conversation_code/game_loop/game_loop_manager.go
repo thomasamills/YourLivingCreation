@@ -112,11 +112,7 @@ func (g *GameLoopManagerImpl) LoadNpcs() error {
 		if err != nil {
 			return err
 		}
-		//actuationRuleSet, err := g.db.GetActuationRuleSet(entity.ActuationRuleSetId, nil)
-		//if err != nil {
-		//	return err
-		//}
-		personality, err := g.db.GetPersonality(entity.PersonalityId, nil)
+		personality, err := g.db.GetPersonality(strings.Split(entity.PersonalityIds, ","), nil)
 		if err != nil {
 			return err
 		}

@@ -20,21 +20,18 @@ import (
 
 type HumanizeDB interface {
 	Init() error
-
 	CreateEntity(
 		id, name, sessionId,
-		personalityId,
-		generationConfigId, promptSetId,
-		promptSegmentSetId, promptId,
-		actuationSetId, automationPromptSetId,
-		automationPromptSetSegmentId string,
+		promptId,
+		generationConfigId string,
+		personalityIds, promptSetIds,
+		needsIds, actuationSetIds,
+		religionIds, ideologyIds,
+		personalityTypeIds,
+		emotionalPrimerIds []string,
 	) bool
 	GetEntity(
 		entityId string,
-	) (*Entity, error)
-	UpdateEntityNeeds(
-		entityId string,
-		needs []string,
 	) (*Entity, error)
 	CreateSession(
 		sessionId,
@@ -107,7 +104,7 @@ type HumanizeDB interface {
 		upperTx *gorm.DB,
 	) error
 	GetPersonality(
-		personalityId string,
+		personalityIds []string,
 		upperTx *gorm.DB,
 	) ([]*humanize_protobuf.EmotionUpdateRule, error)
 	ListPersonalities() ([]string, error)

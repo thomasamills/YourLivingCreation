@@ -27,11 +27,11 @@ func (arm *ActuationRuleManagerImpl) ProcessActuationRules(
 	log.WithFields(log.Fields{
 		"entity_id": entityId,
 	}).Info("Processing actuation rules")
-	entity, err := arm.db.GetEntity(entityId)
+	_, err := arm.db.GetEntity(entityId)
 	if err != nil {
 		return err
 	}
-	actuationRuleSet, err := arm.db.GetActuationRuleSet(entity.PersonalityId, nil)
+	actuationRuleSet, err := arm.db.GetActuationRuleSet("", nil)
 	if err != nil {
 		return err
 	}

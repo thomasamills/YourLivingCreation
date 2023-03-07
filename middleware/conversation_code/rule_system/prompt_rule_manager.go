@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"sort"
+	"strings"
 	"testserver/conversation_code/npc_data"
 	"testserver/conversation_code/prompt_management"
 	"testserver/conversation_code/rule_system_utilties"
@@ -51,19 +52,23 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 	askerName, responderName string,
 	npcInformation *npc_data.NpcData,
 ) (*humanize_protobuf.Prompt, error) {
-	promptSetId := npcInformation.Entity.PromptSetId
-	promptSegmentSetId := npcInformation.Entity.PromptSegmentSetId
+	promptSetIds := npcInformation.Entity.PromptSetIds
 	log.WithFields(log.Fields{
 		"session_id": session.SessionID,
 	}).Info("Attempting to generate prompt")
-	// first get the set of possible prompts
-	idAndStates, err := a.db.GetPromptIdealStatesBySetId(promptSetId, nil)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"session_id": session.SessionID,
-		}).Error("could not read possible prompts from database")
-		return nil, err
+	// first get the set of possible prompts ids and their ideal emotional state
+	idAndStates := make([]db.IdealStateAndId, 0)
+	for _, promptSetId := range strings.Split(promptSetIds, ",") {
+		x, err := a.db.GetPromptIdealStatesBySetId(promptSetId, nil)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"session_id": session.SessionID,
+			}).Error("could not read possible prompts from database")
+			return nil, err
+		}
+		idAndStates = append(idAndStates, x...)
 	}
+
 	// then find the current emotional state squared difference
 	currentEmotionalState := npcInformation.EmotionalState
 	// now get all the ideal square differences for the prompts (map[bound_id]difference from current)
@@ -140,23 +145,47 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 	}
 	promptSegments := make([]*humanize_protobuf.PromptSegment, 0)
 	// As long as the prompt has possible prompt segments
-	if len(promptSegmentSetId) > 0 {
+	if len(selectedPrompt.RequiredPromptSegmentTypes) > 0 {
 		// For each needed primer
 		for _, neededPrimerType := range selectedPrompt.RequiredPromptSegmentTypes {
+			idAndStates = make([]db.IdealStateAndId, 0)
+			// Here we need to calculate the prompt segment ids from the primer type/
 			log.WithFields(log.Fields{
-				"prompt_id":             selectedPrompt.PromptId,
-				"prompt_segment_set_it": promptSegmentSetId,
+				"prompt_id":          selectedPrompt.PromptId,
+				"needed primer type": neededPrimerType.String(),
 			}).Info("attempting to get the ideal emotional states for the prompt_segment_set/primer_type combo")
-			idAndStates, err :=
-				a.db.GetPromptSegmentIdealStateBySetIdAndPrimerType(promptSegmentSetId, neededPrimerType.String(), nil)
-			if err != nil {
-				return nil, err
+			var promptSegmentIds []string
+			switch neededPrimerType {
+			case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_MOTIVATIONAL_PRIMER:
+				promptSegmentIds = strings.Split(npcInformation.Entity.NeedsIds, ",")
+				break
+			case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_EMOTIONAL_PRIMER:
+				promptSegmentIds = strings.Split(npcInformation.Entity.EmotionalPrimerIds, ",")
+				break
+			case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_RELIGION_PRIMER:
+				promptSegmentIds = strings.Split(npcInformation.Entity.ReligionIds, ",")
+				break
+			case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER:
+				promptSegmentIds = strings.Split(npcInformation.Entity.IdeologyIds, ",")
+				break
+			case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_PERSONALITY_TYPE_PRIMER:
+				promptSegmentIds = strings.Split(npcInformation.Entity.PersonalityTypeIds, ",")
+				break
 			}
-			log.WithFields(log.Fields{
-				"primer_type":           neededPrimerType.String(),
-				"prompt_segment_set_id": promptSegmentSetId,
-				"possible segments":     len(idAndStates),
-			}).Info("possible prompt segments for the primer type")
+			for _, promptSegmentId := range promptSegmentIds {
+				x, err :=
+					a.db.GetPromptSegmentIdealStateBySetIdAndPrimerType(promptSegmentId, neededPrimerType.String(), nil)
+				if err != nil {
+					return nil, err
+				}
+				log.WithFields(log.Fields{
+					"primer_type":           neededPrimerType.String(),
+					"prompt_segment_set_id": promptSegmentId,
+					"possible segments":     len(idAndStates),
+				}).Info("possible prompt segments for the primer type")
+				idAndStates = append(idAndStates, x...)
+			}
+
 			// Now calculate prompt segments to see if they should be added
 			// To do this we need to order segments by distance squared from current emotional state.
 			segmentDistanceSquaredFromEmotionalState := make([]IdAndDistance, 0)
@@ -184,7 +213,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 						"prompt_segment_type":   segment.Type,
 						"segment_id":            segment.PromptSegmentId,
 						"percentage":            perc,
-						"prompt_segment_set_id": promptSegmentSetId,
+						"prompt_segment_set_id": neededPrimerType.String(),
 					}).Info("prompt segment has passed percentage check, now " +
 						"attempting to process rule parts")
 					allRulePartsPassed := true
@@ -197,7 +226,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 								"prompt_segment_type":   segment.Type,
 								"segment_id":            segment.PromptSegmentId,
 								"percentage":            perc,
-								"prompt_segment_set_it": promptSegmentSetId,
+								"prompt_segment_set_it": neededPrimerType.String(),
 								"segment_rule_part_id":  rulePart.RulePartId,
 							}).Info("processing rule part")
 							bound := npcInformation.EmotionalState.EmotionalBounds[rulePart.BoundId]
@@ -209,7 +238,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 									"prompt_segment_type":   segment.Type,
 									"segment_id":            segment.PromptSegmentId,
 									"percentage":            perc,
-									"prompt_segment_set_it": promptSegmentSetId,
+									"prompt_segment_set_it": neededPrimerType.String(),
 									"segment_rule_part_id":  rulePart.RulePartId,
 								}).Info("rule part passed")
 							} else {
@@ -219,7 +248,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 									"prompt_segment_type":   segment.Type,
 									"segment_id":            segment.PromptSegmentId,
 									"percentage":            perc,
-									"prompt_segment_set_it": promptSegmentSetId,
+									"prompt_segment_set_it": neededPrimerType.String(),
 									"segment_rule_part_id":  rulePart.RulePartId,
 								}).Info("rule part failed")
 								allRulePartsPassed = false
@@ -232,7 +261,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 								"prompt_segment_type":   segment.Type,
 								"segment_id":            segment.PromptSegmentId,
 								"percentage":            perc,
-								"prompt_segment_set_it": promptSegmentSetId,
+								"prompt_segment_set_it": neededPrimerType.String(),
 								"segment_rule_part_id":  rulePart.RulePartId,
 							}).Info("prompt segment rule part did not pass")
 						}
@@ -244,7 +273,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 							"prompt_segment_type":   segment.Type,
 							"segment_id":            segment.PromptSegmentId,
 							"percentage":            perc,
-							"prompt_segment_set_it": promptSegmentSetId,
+							"prompt_segment_set_it": neededPrimerType.String(),
 						}).Info("all rule parts have passed")
 					}
 				} else {
@@ -252,7 +281,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 						"prompt_id":             selectedPrompt.PromptId,
 						"percentage_of_proc":    segment.PercentageOfProc,
 						"percentage":            perc,
-						"prompt_segment_set_it": promptSegmentSetId,
+						"prompt_segment_set_it": neededPrimerType.String(),
 					}).Info("prompt segment has failed percentage check")
 				}
 			}

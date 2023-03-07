@@ -75,7 +75,7 @@ func startSession(speakerName *C.char) *C.char {
 				PresetEmotionalStateId: "DEFAULT_EMOTIONAL_STATE",
 				DefaultPromptId:        "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_PROMPT",
 				PersonalityId:          "DEFAULT_PERSONALITY",
-				PromptSetId:            "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_PROMPT_SET",
+				PromptSetIds:           "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_PROMPT_SET",
 				PromptSegmentSetId:     "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_PROMPT_SEGMENT_SET",
 				GenConfigId:            "DEFAULT_CONFIG",
 				ActuationRuleSetId:     "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_FAKE",

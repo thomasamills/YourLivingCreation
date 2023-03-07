@@ -71,22 +71,26 @@ func (h *HumanizeDbImpl) SavePersonality(
 }
 
 func (h *HumanizeDbImpl) GetPersonality(
-	personalityId string,
+	personalityIds []string,
 	upperTx *gorm.DB,
 ) ([]*humanize_protobuf.EmotionUpdateRule, error) {
 	personality := make([]*humanize_protobuf.EmotionUpdateRule, 0)
 	// first get all of the rules
 	getPersonality := func(tx *gorm.DB) error {
 		var rules []EmotionalBoundRule
-		err := h.mainDB.
-			Where("personality_id = ?", personalityId).
-			Find(&rules).
-			Error
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				fmt.Println(err.Error())
+		for _, personalityId := range personalityIds {
+			var subRules []EmotionalBoundRule
+			err := h.mainDB.
+				Where("personality_id = ?", personalityId).
+				Find(&subRules).
+				Error
+			if err != nil {
+				if err == gorm.ErrRecordNotFound {
+					fmt.Println(err.Error())
+				}
+				return err
 			}
-			return err
+			rules = append(rules, subRules...)
 		}
 		for _, rule := range rules {
 			// loop through all rules, create proto object then get all personalities

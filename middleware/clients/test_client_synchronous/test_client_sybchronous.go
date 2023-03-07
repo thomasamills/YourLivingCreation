@@ -35,7 +35,7 @@ func main() {
 				PresetEmotionalStateId: "DEFAULT_EMOTIONAL_STATE",
 				DefaultPromptId:        "SOFIA_PROMPT",
 				PersonalityId:          "DEFAULT_PERSONALITY",
-				PromptSetId:            "SOFIA_PROMPT_SET",
+				PromptSetIds:           "SOFIA_PROMPT_SET",
 				PromptSegmentSetId:     "SOFIA_PROMPT_SEGMENT_SET",
 				GenConfigId:            "DEFAULT_CONFIG",
 				ActuationRuleSetId:     "SOFIA_FAKE",

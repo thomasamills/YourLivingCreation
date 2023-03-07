@@ -129,7 +129,7 @@ func (c CreationApiImpl) ListPromptSegmentSetIds(
 func (c CreationApiImpl) GetPersonality(
 	ctx context.Context, request *humanize_protobuf.GetPersonalityRequest,
 ) (*humanize_protobuf.GetPersonalityResponse, error) {
-	personality, err := c.db.GetPersonality(request.PersonalityId, nil)
+	personality, err := c.db.GetPersonality([]string{}, nil)
 	if err != nil {
 		errMessage := "could not retrieve personality with id: " + request.GetPersonalityId()
 		return &humanize_protobuf.GetPersonalityResponse{

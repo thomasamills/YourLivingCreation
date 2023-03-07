@@ -60,18 +60,19 @@ type Session struct {
 }
 
 type Entity struct {
-	EntityId                              string `gorm:"primaryKey;autoIncrement:false;unique"`
-	SessionId                             string
-	Name                                  string
-	PersonalityId                         string
-	GenerationConfigId                    string
-	PromptSetId                           string
-	PromptSegmentSetId                    string
-	PromptId                              string
-	ActuationRuleSetId                    string
-	AutonomousPromptSetId                 string
-	AutonomousPromptSegmentSetId          string
-	KnowledgeGraphCurrentSatisfactoryNeed string
+	EntityId            string `gorm:"primaryKey;autoIncrement:false;unique"`
+	SessionId           string
+	Name                string
+	GenerationConfigId  string
+	PromptId            string
+	PersonalityIds      string
+	PromptSetIds        string
+	NeedsIds            string
+	ActuationRuleSetIds string
+	ReligionIds         string
+	IdeologyIds         string
+	PersonalityTypeIds  string
+	EmotionalPrimerIds  string
 }
 
 type MessageEntry struct {

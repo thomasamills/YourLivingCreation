@@ -2,30 +2,34 @@ package db
 
 import (
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 func (h *HumanizeDbImpl) CreateEntity(
 	id, name, sessionId,
-	personalityId,
-	generationConfigId, promptSetId,
-	promptSegmentSetId, promptId,
-	actuationSetId, automationPromptSetId,
-	automationPromptSetSegmentId string,
+	promptId,
+	generationConfigId string,
+	personalityIds, promptSetIds,
+	needsIds, actuationSetIds,
+	religionIds, ideologyIds,
+	personalityTypeIds,
+	emomtionalPrimerIds []string,
 ) bool {
 	entity := &Entity{
-		EntityId:                     id,
-		Name:                         name,
-		SessionId:                    sessionId,
-		PersonalityId:                personalityId,
-		GenerationConfigId:           generationConfigId,
-		PromptSetId:                  promptSetId,
-		PromptId:                     promptId,
-		PromptSegmentSetId:           promptSegmentSetId,
-		ActuationRuleSetId:           actuationSetId,
-		AutonomousPromptSegmentSetId: automationPromptSetSegmentId,
-		AutonomousPromptSetId:        automationPromptSetId,
+		EntityId:            id,
+		Name:                name,
+		SessionId:           sessionId,
+		GenerationConfigId:  generationConfigId,
+		PromptId:            promptId,
+		PersonalityIds:      strings.Join(personalityIds, ","),
+		PromptSetIds:        strings.Join(promptSetIds, ","),
+		NeedsIds:            strings.Join(needsIds, ","),
+		ActuationRuleSetIds: strings.Join(actuationSetIds, ","),
+		ReligionIds:         strings.Join(religionIds, ","),
+		IdeologyIds:         strings.Join(ideologyIds, ","),
+		PersonalityTypeIds:  strings.Join(personalityTypeIds, ","),
 	}
 	_ = h.mainDB.Create(entity)
 	return true
@@ -45,12 +49,4 @@ func (h *HumanizeDbImpl) GetEntity(entityId string) (*Entity, error) {
 	}
 
 	return result, nil
-}
-
-func (h *HumanizeDbImpl) UpdateEntityNeeds(
-	entityId string,
-	needs []string,
-) (*Entity, error) {
-	return nil, nil
-
 }

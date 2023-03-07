@@ -75,7 +75,7 @@ func startSession(speakerName *C.char) *C.char {
 				PresetEmotionalStateId: "DEFAULT_EMOTIONAL_STATE",
 				DefaultPromptId:        "FAR_RIGHT_PUB_MAN_PROMPT",
 				PersonalityId:          "DEFAULT_PERSONALITY",
-				PromptSetId:            "FAR_RIGHT_PUB_MAN_PROMPT_SET",
+				PromptSetIds:           "FAR_RIGHT_PUB_MAN_PROMPT_SET",
 				PromptSegmentSetId:     "BASIC_HUMAN_NEEDS_PROMPT_SEGMENT_SET",
 				GenConfigId:            "DEFAULT_CONFIG",
 				ActuationRuleSetId:     "",

@@ -33,15 +33,19 @@ message CommitResponse{
 
 message NpcRequestInformation{
   string name = 1;
-  string prompt_set_id = 2;
-  string prompt_segment_set_id = 3;
+  repeated string prompt_set_id = 2;
+  repeated string needs_prompt_segment_set_ids = 3;
   string default_prompt_id = 4;
   string preset_emotional_state_id = 5;
-  string personality_id = 6;
-  string actuation_rule_set_id = 7;
+  repeated string personality_ids = 6;
+  repeated string actuation_rule_set_ids = 7;
   string gen_config_id = 8;
-  string actuation_prompt_set_id = 9;
-  string actuation_prompt_segment_set_id = 10;
+  repeated string  actuation_prompt_set_ids = 9;
+  repeated string actuation_prompt_segment_set_ids = 10;
+  repeated string personality_type_segment_set_ids = 11;
+  repeated string religion_segment_set_ids = 12;
+  repeated string ideology_segment_set_ids = 13;
+  repeated string emotional_primer_ids = 14;
 }
 
 
