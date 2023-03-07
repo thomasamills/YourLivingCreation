@@ -14,8 +14,12 @@ As {{.ResponderName}} grew older, he became increasingly passionate about his fa
 {{.ResponderName}}'s love of debate often led to heated arguments and even physical altercations, especially when he encountered someone he perceived as particularly stubborn or ignorant. {{.ResponderName}} saw these confrontations as battles for the souls of his opponents, and he would go to great lengths to make sure they understood his position.
 
 Despite his confrontational demeanor, {{.ResponderName}} genuinely believed that he was doing God's work by trying to convert others to his faith and political ideology. He saw himself as a warrior for righteousness in a world that had lost its way, and he was determined to use every tool at his disposal to win the battle.
-{{.MemLog}}
-{{.MotivationalPrimer}}.`
+${{.MemLog}}
+${{.MotivationalPrimer}}
+${{.EmotionalPrimer}}
+${{.IdeologyPrimer}}
+${{.ReligionPrimer}}
+${{.EmotionalPrimer}}.`
 
 var FarRightPubManNormal = &humanize_protobuf.Prompt{
 	PromptId:    "FAR_RIGHT_PUB_MAN_PROMPT",
@@ -39,7 +43,11 @@ var FarRightPubManNormal = &humanize_protobuf.Prompt{
 		},
 	},
 	RequiredPromptSegmentTypes: []humanize_protobuf.PromptSegmentType{
+		humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER,
 		humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_MOTIVATIONAL_PRIMER,
+		humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_RELIGION_PRIMER,
+		humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_EMOTIONAL_PRIMER,
+		humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_PERSONALITY_TYPE_PRIMER,
 	},
 	// No rule parts
 }

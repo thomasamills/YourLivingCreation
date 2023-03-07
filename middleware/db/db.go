@@ -7,10 +7,13 @@ import (
 	"strings"
 	"testserver/db/id_gen"
 	"testserver/npc_profiles/character_profiles"
+	"testserver/npc_profiles/emotional_personalities"
+	"testserver/npc_profiles/emotional_primers"
 	"testserver/npc_profiles/emotional_states"
+	"testserver/npc_profiles/ideology"
 	"testserver/npc_profiles/needs"
+	"testserver/npc_profiles/personality_types"
 	"testserver/npc_profiles/prompts"
-	"testserver/npc_profiles/rule_sets"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 
 	"github.com/sirupsen/logrus"
@@ -274,7 +277,7 @@ func NewHumanizeDb() HumanizeDB {
 	// Default human
 	err := db.SavePersonality(
 		"DEFAULT_PERSONALITY",
-		rule_sets.DefaultPersonality,
+		emotional_personalities.DefaultPersonality,
 		nil,
 	)
 	if err != nil {
@@ -308,7 +311,19 @@ func NewHumanizeDb() HumanizeDB {
 	}
 	_, err = db.CreatePromptSegment(needs.FoodPromptSegmentNormal, nil)
 	if err != nil {
-		logrus.Error("could food need prompt normal")
+		logrus.Error("could not create food need prompt normal")
+	}
+	_, err = db.CreatePromptSegment(personality_types.ISTJPersonalityPromptSegmentSegmentNormal, nil)
+	if err != nil {
+		logrus.Error("could not create itsj personality types normal")
+	}
+	_, err = db.CreatePromptSegment(ideology.CapitalistPromptSegmentNormal, nil)
+	if err != nil {
+		logrus.Error("could not create capitalist prompt segment normal")
+	}
+	_, err = db.CreatePromptSegment(emotional_primers.DefaultEmotionalPrimerNormal, nil)
+	if err != nil {
+		logrus.Error("could not create default emotional primer normal")
 	}
 	return db
 }

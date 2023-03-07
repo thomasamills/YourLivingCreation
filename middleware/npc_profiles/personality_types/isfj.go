@@ -66,8 +66,10 @@ var ISTJPersonalityPromptSegmentSegmentVeryHappy = &humanize_protobuf.PromptSegm
 	PrimerType:         humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_PERSONALITY_TYPE_PRIMER.String(),
 	PromptSegmentId:    "ISTJ_PERSONALITY_TYPE_PROMPT_SEGMENT_SEGMENT_VERY_HAPPY",
 	PromptSegmentSetId: "ISTJ_PERSONALITY_TYPE_PROMPT_SEGMENT_SET",
-	Message:            "When an ISTJ accomplishes something significant, they may feel a great sense of joy and happiness. They may celebrate their success and take the time to appreciate what they have accomplished.",
-	Type:               humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_PERSONALITY_TYPE_PRIMER,
+	Message: "When an ISTJ accomplishes something significant, they may feel a" +
+		" great sense of joy and happiness. They may celebrate their success and take the" +
+		" time to appreciate what they have accomplished.",
+	Type: humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_PERSONALITY_TYPE_PRIMER,
 	RuleParts: []*humanize_protobuf.RulePart{
 		{
 			Description:     "must be above 35 happy",

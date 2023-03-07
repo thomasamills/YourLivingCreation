@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	OpenAIKey = "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"
+	OpenAIKey = "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"
 )
 
 type ChatGptClient interface {
@@ -46,12 +46,13 @@ func (c *ChatGptClientImpl) SendPrompt(
 ) (*humanize_protobuf.HumanizeResponse, error) {
 	switch requestType {
 	case humanize_protobuf.HumanizeRequest_REQUEST_TYPE_AUTONOMOUS:
-		prompt = prompt + fmt.Sprintf("\n\n%s", responderName)
+		prompt = prompt + fmt.Sprintf("\n\n%s:", responderName)
 		break
 	case humanize_protobuf.HumanizeRequest_REQUEST_TYPE_SEND_MESSAGE_TO_NPC:
 		prompt = prompt + fmt.Sprintf("\n\n%s:%s\n%s:", askerName, message, responderName)
 		break
 	}
+	fmt.Println(prompt)
 	req := &gpt35.Request{
 		Model: gpt35.ModelGpt35Turbo,
 		Messages: []*gpt35.Message{

@@ -1,4 +1,4 @@
-package rule_sets
+package emotional_personalities
 
 import humanize_protobuf "testserver/src/generated/humanize-protobuf"
 

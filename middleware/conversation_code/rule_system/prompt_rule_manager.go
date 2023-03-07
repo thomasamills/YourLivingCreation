@@ -275,6 +275,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 							"percentage":            perc,
 							"prompt_segment_set_it": neededPrimerType.String(),
 						}).Info("all rule parts have passed")
+						promptSegments = append(promptSegments, segment)
 					}
 				} else {
 					log.WithFields(log.Fields{
