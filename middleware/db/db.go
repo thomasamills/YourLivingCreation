@@ -8,6 +8,8 @@ import (
 	"testserver/db/id_gen"
 	"testserver/npc_profiles/character_profiles"
 	"testserver/npc_profiles/emotional_states"
+	"testserver/npc_profiles/needs"
+	"testserver/npc_profiles/prompts"
 	"testserver/npc_profiles/rule_sets"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 
@@ -296,6 +298,19 @@ func NewHumanizeDb() HumanizeDB {
 	)
 	if err != nil {
 		logrus.Error("could not save the default config")
+	}
+
+	_, err = db.CreatePrompt(prompts.FarRightPubManNormal, nil)
+	if err != nil {
+		logrus.Error("could not far right pub man normal prompt")
+	}
+	_, err = db.CreatePrompt(prompts.YoungFarLeftSoberManNormal, nil)
+	if err != nil {
+		logrus.Error("could no young far left sober man prompt")
+	}
+	_, err = db.CreatePromptSegment(needs.FoodPromptSegmentNormal, nil)
+	if err != nil {
+		logrus.Error("could food need prompt normal")
 	}
 	return db
 }

@@ -8,6 +8,7 @@ import (
 	"testserver/conversation_code/prompt_management"
 	"testserver/conversation_code/rule_system_utilties"
 	"testserver/db"
+	"testserver/npc_data"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 
@@ -16,7 +17,7 @@ type PromptRuleSystemManager interface {
 		session db.Session,
 		memLog *humanize_protobuf.MemoryLog,
 		askerName, responderName string,
-		npcInformation *db.NpcData,
+		npcInformation *npc_data.NpcData,
 	) (*humanize_protobuf.Prompt, error)
 }
 
@@ -48,7 +49,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 	session db.Session,
 	memLog *humanize_protobuf.MemoryLog,
 	askerName, responderName string,
-	npcInformation *db.NpcData,
+	npcInformation *npc_data.NpcData,
 ) (*humanize_protobuf.Prompt, error) {
 	promptSetId := npcInformation.Entity.PromptSetId
 	promptSegmentSetId := npcInformation.Entity.PromptSegmentSetId
@@ -147,7 +148,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 				"prompt_segment_set_it": promptSegmentSetId,
 			}).Info("attempting to get the ideal emotional states for the prompt_segment_set/primer_type combo")
 			idAndStates, err :=
-				a.db.GetPromptSegmentIdealStateBySetIdAndPrimerType(promptSetId, neededPrimerType.String(), nil)
+				a.db.GetPromptSegmentIdealStateBySetIdAndPrimerType(promptSegmentSetId, neededPrimerType.String(), nil)
 			if err != nil {
 				return nil, err
 			}

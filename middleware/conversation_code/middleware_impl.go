@@ -3,6 +3,7 @@ package conversation_code
 import (
 	"context"
 	"fmt"
+	"testserver/conversation_code/gpt"
 	"testserver/conversation_code/rule_system"
 	"testserver/db"
 	"testserver/db/id_gen"
@@ -24,7 +25,7 @@ func NewMiddlewareApiImplementation(
 	promptCreation := rule_system.NewActuationRuleBasedSystemManager(db, emotionalStateManager)
 	memoryManager := NewMemoryManager(db)
 	gameLoopRegistry := NewGameLoopManagerRegistry()
-	chatGptClient := NewChatGptClient()
+	chatGptClient, err := gpt.NewChatGptClient()
 	conversationManager, err := NewConnectionManager(
 		db,
 		emotionalStateManager,

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"testserver/conversation_code/gpt"
 	"testserver/conversation_code/rule_system"
 	"testserver/db"
 	"testserver/db/id_gen"
@@ -30,7 +31,7 @@ type ConnectionManagerImpl struct {
 	promptCreation        rule_system.PromptRuleSystemManager
 	memoryManager         MemoryManager
 	gameLoopRegistry      GameLoopManagerRegistry
-	chatGptClient         ChatGptClient
+	chatGptClient         gpt.ChatGptClient
 }
 
 func NewConnectionManager(
@@ -40,7 +41,7 @@ func NewConnectionManager(
 	promptCreation rule_system.PromptRuleSystemManager,
 	memManager MemoryManager,
 	gameLoopRegistry GameLoopManagerRegistry,
-	chatGptClient ChatGptClient,
+	chatGptClient gpt.ChatGptClient,
 ) (ConnectionManager, error) {
 	go func() {
 		if err := gameLoopRegistry.PurgeGameLoops(); err != nil {

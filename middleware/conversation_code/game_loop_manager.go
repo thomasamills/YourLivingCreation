@@ -7,9 +7,11 @@ import (
 	"math/rand"
 	"strings"
 	"sync"
+	"testserver/conversation_code/gpt"
 	rule_system2 "testserver/conversation_code/rule_system"
 	"testserver/db"
 	"testserver/db/id_gen"
+	"testserver/npc_data"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 	"time"
 )
@@ -34,18 +36,18 @@ type GameLoopManagerImpl struct {
 	emotionalStateManager  rule_system2.EmotionalStateManager
 	promptCreator          rule_system2.PromptRuleSystemManager
 	session                *db.Session
-	reqChan                chan *db.ActionRequest
+	reqChan                chan *npc_data.ActionRequest
 	respChan               chan *humanize_protobuf.GetConversationInformationResponse
 	stopChan               chan bool
 	errorChan              chan error
 	responseQueue          ResponseQueue
-	currentNpcs            []*db.NpcData
+	currentNpcs            []*npc_data.NpcData
 	conversationEscalation int
 	mu                     sync.Mutex
 	lastActiveTime         time.Time
 	idGen                  id_gen.ULIDGenerator
 	stateUpdateCallback    map[string]func() (*humanize_protobuf.MessageResponseData, error)
-	chatGptClient          ChatGptClient
+	chatGptClient          gpt.ChatGptClient
 }
 
 func (g *GameLoopManagerImpl) Commit(commitToken string) (*humanize_protobuf.MessageResponseData, error) {
@@ -73,7 +75,7 @@ func NewGameLoopManager(
 	stateManager rule_system2.EmotionalStateManager,
 	promptCreator rule_system2.PromptRuleSystemManager,
 	session *db.Session,
-	chatGptClient ChatGptClient,
+	chatGptClient gpt.ChatGptClient,
 ) GameLoopManager {
 	return &GameLoopManagerImpl{
 		mu:                    sync.Mutex{},
@@ -85,7 +87,7 @@ func NewGameLoopManager(
 		responseQueue:         CreateResponseQueue(100),
 		stopChan:              make(chan bool, 0),
 		errorChan:             make(chan error, 0),
-		currentNpcs:           make([]*db.NpcData, 0),
+		currentNpcs:           make([]*npc_data.NpcData, 0),
 		lastActiveTime:        time.Now(),
 		idGen:                 id_gen.NewULIDGenerator(),
 		stateUpdateCallback:   make(map[string]func() (*humanize_protobuf.MessageResponseData, error), 0),
@@ -118,12 +120,12 @@ func (g *GameLoopManagerImpl) LoadNpcs() error {
 			return err
 		}
 		// Todo should be cached (memory of each npc at least 3 turns back)
-		npcData := &db.NpcData{
+		npcData := &npc_data.NpcData{
 			EmotionalState:    npcEmotionalState,
 			GptConfig:         genConfig,
 			Personality:       personality,
 			LastInputTime:     time.Now(),
-			NpcRequestChannel: make(chan *db.ActionRequest, 0),
+			NpcRequestChannel: make(chan *npc_data.ActionRequest, 0),
 			NpcStopChannel:    make(chan bool, 0),
 			Entity:            entity,
 			IsPaused:          false,
@@ -139,7 +141,7 @@ func (g *GameLoopManagerImpl) StartGameLoop(startNarrative bool) error {
 		stopChan chan bool,
 		errorChan chan error,
 	) {
-		startNpcThoughtProcess := func(npc *db.NpcData) {
+		startNpcThoughtProcess := func(npc *npc_data.NpcData) {
 			for {
 				select {
 				case stop := <-npc.NpcStopChannel:
@@ -189,8 +191,8 @@ func (g *GameLoopManagerImpl) StartGameLoop(startNarrative bool) error {
 
 func (g *GameLoopManagerImpl) ProcessResult(
 	sessionId string,
-	askerNpc *db.NpcData,
-	responderNpc *db.NpcData,
+	askerNpc *npc_data.NpcData,
+	responderNpc *npc_data.NpcData,
 	responderResponse *humanize_protobuf.HumanizeResponse,
 	askerResponse *humanize_protobuf.HumanizeResponse,
 	addToQueue bool,
@@ -200,7 +202,7 @@ func (g *GameLoopManagerImpl) ProcessResult(
 
 	// Next run emotional rules and get updated state.
 	processEmotionalRules := func(
-		data *db.NpcData, response *humanize_protobuf.HumanizeResponse,
+		data *npc_data.NpcData, response *humanize_protobuf.HumanizeResponse,
 	) (*humanize_protobuf.EmotionalState, string, error) {
 		// Next process the state update based upon what has happened
 		emotionRuleTriggers := make([]string, 0)
@@ -354,7 +356,7 @@ func (g *GameLoopManagerImpl) ProcessResult(
 	return messageResponseData, nil
 }
 
-func (g *GameLoopManagerImpl) findNpcById(entityId string) *db.NpcData {
+func (g *GameLoopManagerImpl) findNpcById(entityId string) *npc_data.NpcData {
 	if g.currentNpcs != nil {
 		for _, npc := range g.currentNpcs {
 			if npc.Entity.EntityId == entityId {
@@ -504,11 +506,11 @@ func (g *GameLoopManagerImpl) mapActionText(
 	return "", errors.New("invalid action")
 }
 
-func (g *GameLoopManagerImpl) npcAskAQuestionWithDecisionPrompt(npc *db.NpcData) error {
+func (g *GameLoopManagerImpl) npcAskAQuestionWithDecisionPrompt(npc *npc_data.NpcData) error {
 	return g.npcSpeakWithPlayer(npc)
 }
 
-func (g *GameLoopManagerImpl) npcSpeakWithPlayer(npc *db.NpcData) error {
+func (g *GameLoopManagerImpl) npcSpeakWithPlayer(npc *npc_data.NpcData) error {
 	// interjection <- effects just their emotional state
 	memLog, err := g.memoryManager.GetConversationMemoryLog(
 		g.session.SessionID,
@@ -550,7 +552,7 @@ func (g *GameLoopManagerImpl) npcSpeakWithPlayer(npc *db.NpcData) error {
 	return nil
 }
 
-func (g *GameLoopManagerImpl) npcSpeakWithTarget(npc *db.NpcData) error {
+func (g *GameLoopManagerImpl) npcSpeakWithTarget(npc *npc_data.NpcData) error {
 	// target a random npc.
 	if len(g.currentNpcs) < 2 {
 		return g.npcSpeakWithPlayer(npc)

@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"testserver/conversation_code/rule_system_utilties"
 	"testserver/db"
+	"testserver/npc_data"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 
@@ -19,7 +20,7 @@ type EmotionalStateManager interface {
 		usesComposure bool, composure int32,
 	) error
 	ProcessEmotionalStateRules(
-		npc db.NpcData, triggers []string,
+		npc npc_data.NpcData, triggers []string,
 	) (*humanize_protobuf.EmotionalState, []string, error)
 	GetEmotionalState(entityId string) (*humanize_protobuf.EmotionalState, error)
 
@@ -137,7 +138,7 @@ func (e *EmotionalStateManagerImpl) UpdateEmotionalState(
 }
 
 func (e *EmotionalStateManagerImpl) ProcessEmotionalStateRules(
-	npc db.NpcData, triggers []string,
+	npc npc_data.NpcData, triggers []string,
 ) (*humanize_protobuf.EmotionalState, []string, error) {
 	triggerString := ""
 	for _, trigger := range triggers {

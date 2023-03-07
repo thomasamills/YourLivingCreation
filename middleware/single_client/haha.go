@@ -20,7 +20,7 @@ const (
 )
 
 func CreateClient() humanize_protobuf.ConnectClient {
-	address := os.Getenv(HumanizeAddress)
+	address := "localhost:" + os.Getenv(MiddleWarePort)
 	log.Println("address: " + address)
 	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -71,14 +71,14 @@ func startSession(speakerName *C.char) *C.char {
 		SpeakerName: C.GoString(speakerName),
 		NpcInformation: []*humanize_protobuf.NpcRequestInformation{
 			{
-				Name:                   "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME",
+				Name:                   "Bob",
 				PresetEmotionalStateId: "DEFAULT_EMOTIONAL_STATE",
-				DefaultPromptId:        "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_PROMPT",
+				DefaultPromptId:        "FAR_RIGHT_PUB_MAN_PROMPT",
 				PersonalityId:          "DEFAULT_PERSONALITY",
-				PromptSetId:            "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_PROMPT_SET",
-				PromptSegmentSetId:     "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_PROMPT_SEGMENT_SET",
+				PromptSetId:            "FAR_RIGHT_PUB_MAN_PROMPT_SET",
+				PromptSegmentSetId:     "BASIC_HUMAN_NEEDS_PROMPT_SEGMENT_SET",
 				GenConfigId:            "DEFAULT_CONFIG",
-				ActuationRuleSetId:     "DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME_FAKE",
+				ActuationRuleSetId:     "",
 			},
 		},
 		StartAsyncGameLoop:                      false,
@@ -90,7 +90,7 @@ func startSession(speakerName *C.char) *C.char {
 	}
 	sessionResponse := &StartSessionResponse{
 		SessionId: connectionResponse.SessionId,
-		SophiaId:  connectionResponse.NpcNameToId["DOESNT_MATTER_CHARACTER_WILL_NEVER_BE_IN_A_GAME"],
+		SophiaId:  connectionResponse.NpcNameToId["Bob"],
 	}
 	marshalledString, err := json.Marshal(sessionResponse)
 	return C.CString(string(marshalledString))
@@ -177,5 +177,6 @@ func commit(commitToken *C.char) *C.char {
 }
 
 func main() {
-
+	startSession("Tom")
+	print(sendMessage("Hello, who are you?"))
 }
