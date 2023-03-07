@@ -6,9 +6,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"math"
 	"math/rand"
+	"testserver/conversation_code/npc_data"
 	"testserver/conversation_code/rule_system_utilties"
 	"testserver/db"
-	"testserver/npc_data"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 

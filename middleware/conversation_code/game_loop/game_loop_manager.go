@@ -1,4 +1,4 @@
-package conversation_code
+package game_loop
 
 import (
 	"errors"
@@ -8,10 +8,11 @@ import (
 	"strings"
 	"sync"
 	"testserver/conversation_code/gpt"
+	"testserver/conversation_code/memory"
+	"testserver/conversation_code/npc_data"
 	rule_system2 "testserver/conversation_code/rule_system"
 	"testserver/db"
 	"testserver/db/id_gen"
-	"testserver/npc_data"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 	"time"
 )
@@ -32,7 +33,7 @@ type GameLoopManager interface {
 
 type GameLoopManagerImpl struct {
 	db                     db.HumanizeDB
-	memoryManager          MemoryManager
+	memoryManager          memory.MemoryManager
 	emotionalStateManager  rule_system2.EmotionalStateManager
 	promptCreator          rule_system2.PromptRuleSystemManager
 	session                *db.Session
@@ -71,7 +72,7 @@ func (g *GameLoopManagerImpl) KeepAlive() {
 
 func NewGameLoopManager(
 	db db.HumanizeDB,
-	manager MemoryManager,
+	manager memory.MemoryManager,
 	stateManager rule_system2.EmotionalStateManager,
 	promptCreator rule_system2.PromptRuleSystemManager,
 	session *db.Session,

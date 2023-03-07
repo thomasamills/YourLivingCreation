@@ -5,10 +5,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"sort"
+	"testserver/conversation_code/npc_data"
 	"testserver/conversation_code/prompt_management"
 	"testserver/conversation_code/rule_system_utilties"
 	"testserver/db"
-	"testserver/npc_data"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 )
 

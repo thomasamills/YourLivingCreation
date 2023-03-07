@@ -1,10 +1,12 @@
-package conversation_code
+package connections
 
 import (
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"testserver/conversation_code/game_loop"
 	"testserver/conversation_code/gpt"
+	"testserver/conversation_code/memory"
 	"testserver/conversation_code/rule_system"
 	"testserver/db"
 	"testserver/db/id_gen"
@@ -29,8 +31,8 @@ type ConnectionManagerImpl struct {
 	db                    db.HumanizeDB
 	idGen                 id_gen.ULIDGenerator
 	promptCreation        rule_system.PromptRuleSystemManager
-	memoryManager         MemoryManager
-	gameLoopRegistry      GameLoopManagerRegistry
+	memoryManager         memory.MemoryManager
+	gameLoopRegistry      game_loop.GameLoopManagerRegistry
 	chatGptClient         gpt.ChatGptClient
 }
 
@@ -39,8 +41,8 @@ func NewConnectionManager(
 	emotionalStateManager rule_system.EmotionalStateManager,
 	idGen id_gen.ULIDGenerator,
 	promptCreation rule_system.PromptRuleSystemManager,
-	memManager MemoryManager,
-	gameLoopRegistry GameLoopManagerRegistry,
+	memManager memory.MemoryManager,
+	gameLoopRegistry game_loop.GameLoopManagerRegistry,
 	chatGptClient gpt.ChatGptClient,
 ) (ConnectionManager, error) {
 	go func() {
@@ -166,7 +168,7 @@ func (cm *ConnectionManagerImpl) Connect(
 	}
 
 	// Initialize game loop
-	gameLoop := NewGameLoopManager(
+	gameLoop := game_loop.NewGameLoopManager(
 		cm.db,
 		cm.memoryManager,
 		cm.emotionalStateManager,
