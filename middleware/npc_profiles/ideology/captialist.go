@@ -33,8 +33,10 @@ var CapitalistPromptSegmentHappy = &humanize_protobuf.PromptSegment{
 	PrimerType:         humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER.String(),
 	PromptSegmentId:    "CAPTITALIST_PROMPT_SEGMENT_HAPPY",
 	PromptSegmentSetId: "CAPITALIST_IDEOLOGY_PROMPT_SEGMENT_SET",
-	Message:            "Capitalism can create opportunities for individuals and businesses to succeed and thrive, leading to a sense of achievement and satisfaction. Its emphasis on individual responsibility and freedom can provide a sense of empowerment and self-determination.",
-	Type:               humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER,
+	Message: "Capitalism can create opportunities for individuals and businesses to succeed" +
+		" and thrive, leading to a sense of achievement and satisfaction. Its emphasis on individual " +
+		"responsibility and freedom can provide a sense of empowerment and self-determination.",
+	Type: humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER,
 	RuleParts: []*humanize_protobuf.RulePart{
 		{
 			Description:     "must be above 20 happy",

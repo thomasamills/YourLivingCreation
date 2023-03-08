@@ -39,7 +39,7 @@ func NewMiddlewareApiImplementation(
 		chatGptClient,
 	)
 	if err != nil {
-		fmt.Println("couldn't connect to python client")
+		fmt.Println("couldn't start middleware")
 		return nil, err
 	}
 	return &MiddlewareApiImplementation{

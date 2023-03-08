@@ -2,7 +2,6 @@ package game_loop
 
 import (
 	"errors"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"math/rand"
 	"strings"
@@ -118,14 +117,13 @@ func (g *GameLoopManagerImpl) LoadNpcs() error {
 		}
 		// Todo should be cached (memory of each npc at least 3 turns back)
 		npcData := &npc_data.NpcData{
-			EmotionalState:    npcEmotionalState,
-			GptConfig:         genConfig,
-			Personality:       personality,
-			LastInputTime:     time.Now(),
-			NpcRequestChannel: make(chan *npc_data.ActionRequest, 0),
-			NpcStopChannel:    make(chan bool, 0),
-			Entity:            entity,
-			IsPaused:          false,
+			EmotionalState: npcEmotionalState,
+			GptConfig:      genConfig,
+			Personality:    personality,
+			LastInputTime:  time.Now(),
+			NpcStopChannel: make(chan bool, 0),
+			Entity:         entity,
+			IsPaused:       false,
 		}
 		g.currentNpcs = append(g.currentNpcs, npcData)
 	}
@@ -141,13 +139,10 @@ func (g *GameLoopManagerImpl) StartGameLoop(startNarrative bool) error {
 		startNpcThoughtProcess := func(npc *npc_data.NpcData) {
 			for {
 				select {
-				case stop := <-npc.NpcStopChannel:
-					fmt.Println(stop)
+				case <-npc.NpcStopChannel:
 					return
 				default:
 					select {
-					case <-npc.NpcRequestChannel:
-						break
 					default:
 						//TODO plug in every 5 minutes query knowledge graph and calculate current needs primer
 						//TODO take current most satisfactory path and create a dialog flow intent for it
@@ -155,7 +150,7 @@ func (g *GameLoopManagerImpl) StartGameLoop(startNarrative bool) error {
 						time.Sleep(time.Duration(rand.Int31n(30)) * time.Second)
 						//TODO intercept the response from gpt, send it to dialog flow to capture if the need was met.
 						//TODO if need was met, then re=qurey knowledge graph and find new need.
-
+						g.KeepAlive()
 						if startNarrative {
 							// In the future start this to override any actual dialog.
 						} else {

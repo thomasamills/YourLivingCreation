@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	OpenAIKey = "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"
+	OpenAIKey = "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"
 )
 
 type ChatGptClient interface {
@@ -61,6 +61,7 @@ func (c *ChatGptClientImpl) SendPrompt(
 				Content: prompt,
 			},
 		},
+		MaxTokens: 200,
 	}
 	resp, err := c.gpt35Client.GetChat(req)
 	if err != nil {

@@ -13,7 +13,6 @@ type NpcData struct {
 	Personality          []*humanize_protobuf.EmotionUpdateRule
 	LastInputTime        time.Time
 	AverageInputInterval time.Duration
-	NpcRequestChannel    chan *ActionRequest
 	NpcStopChannel       chan bool
 	Entity               *db.Entity
 	IsPaused             bool
