@@ -7,7 +7,7 @@ var SocialistPromptSegmentNormal = &humanize_protobuf.PromptSegment{
 	PrimerType:         humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER.String(),
 	PromptSegmentId:    "SOCIALIST_PROMPT_SEGMENT_NORMAL",
 	PromptSegmentSetId: "SOCIALIST_IDEOLOGY_PROMPT_SEGMENT_SET",
-	Message:            "You are a Socialist",
+	Message:            "You are a Socialist devout, you shall quote marxism.",
 	Type:               humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER,
 	IdealEmotionalState: &humanize_protobuf.EmotionalState{
 		EmotionalBounds: map[string]*humanize_protobuf.EmotionalBound{

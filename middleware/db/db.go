@@ -43,15 +43,15 @@ type HumanizeDB interface {
 		npcEntityIds []string,
 		isAsync bool,
 		waitForCommit bool,
-		startNarrative bool,
+		narrativeTopic string,
 	) (*Session, error)
 	GetSession(
 		sessionId string,
 	) (*Session, error)
 	UpdateSession(
 		session Session,
+		upperTx *gorm.DB,
 	) error
-
 	CreateMessage(
 		sessionId,
 		askerName,
@@ -325,6 +325,7 @@ func NewHumanizeDb() HumanizeDB {
 	if err != nil {
 		logrus.Error("could not create default emotional primer normal")
 	}
+	_, err = db.CreatePromptSegment(ideology.SocialistPromptSegmentNormal, nil)
 	return db
 }
 

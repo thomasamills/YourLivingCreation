@@ -44,7 +44,7 @@ func main() {
 				ActuationRuleSetIds:          []string{"TBD"},
 			},
 			{
-				Name:                         "Alex Jones",
+				Name:                         "Alex",
 				PresetEmotionalStateId:       "DEFAULT_EMOTIONAL_STATE",
 				DefaultPromptId:              "YOUNG_FAR_LEFT_SOBER_MAN_PROMPT",
 				GenConfigId:                  "DEFAULT_CONFIG",
@@ -57,6 +57,7 @@ func main() {
 				ActuationRuleSetIds:          []string{"TBD"},
 			},
 		},
+		NarrativeTopic:                          "How shall we run a society?",
 		StartAsyncGameLoop:                      true,
 		WaitForCommitMessageBeforeUpdatingState: false,
 	})
@@ -106,7 +107,6 @@ func main() {
 	}()
 
 	for {
-		fmt.Println("Options: type 'l' to speak to the loyalist or 'e' to speak to the elder or 'p' to speak to the pagan")
 		input := bufio.NewScanner(os.Stdin)
 		input.Scan()
 		inputText := input.Text()

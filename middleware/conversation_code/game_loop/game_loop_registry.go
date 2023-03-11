@@ -17,7 +17,6 @@ type GameLoopManagerRegistryImpl struct {
 }
 
 // TODO find a way to persist the game loop stuff
-
 func NewGameLoopManagerRegistry() GameLoopManagerRegistry {
 	return &GameLoopManagerRegistryImpl{
 		gameLoopManagers: make(map[string]GameLoopManager, 0),

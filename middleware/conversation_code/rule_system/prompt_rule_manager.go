@@ -292,6 +292,7 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 		askerName, responderName,
 		selectedPrompt.PromptText, promptSegments,
 		memLog, npcInformation.EmotionalState,
+		session,
 	)
 	if err != nil {
 		return nil, err

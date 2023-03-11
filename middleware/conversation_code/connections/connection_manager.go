@@ -161,7 +161,7 @@ func (cm *ConnectionManagerImpl) Connect(
 		speakerNameId, npcEntityIds,
 		req.StartAsyncGameLoop,
 		req.WaitForCommitMessageBeforeUpdatingState,
-		req.StartNarrative,
+		req.NarrativeTopic,
 	)
 	if err != nil {
 		resp.Status = humanize_protobuf.MiddleWareConnectResp_FAILED
@@ -191,8 +191,7 @@ func (cm *ConnectionManagerImpl) Connect(
 	}
 
 	if req.StartAsyncGameLoop {
-
-		err = gameLoop.StartGameLoop(req.StartNarrative)
+		err = gameLoop.StartGameLoop()
 		if err != nil {
 			resp.Status = humanize_protobuf.MiddleWareConnectResp_FAILED
 			errMessage := "failed to start game loop"
@@ -225,6 +224,23 @@ func (cm *ConnectionManagerImpl) SendMessage(
 			Status:       humanize_protobuf.GetConversationInformationResponse_FAILED,
 			ErrorMessage: "Could not connect to the game loop, could not retrieve game loop from registry",
 		}, err
+	}
+	if len(req.NewTopic) > 0 {
+		session, err := cm.db.GetSession(req.SessionId)
+		if err != nil {
+			return &humanize_protobuf.GetConversationInformationResponse{
+				Status:       humanize_protobuf.GetConversationInformationResponse_FAILED,
+				ErrorMessage: "Could not update topic",
+			}, err
+		}
+		session.NarrativeTopic = req.NewTopic
+		err = cm.db.UpdateSession(*session, nil)
+		if err != nil {
+			return &humanize_protobuf.GetConversationInformationResponse{
+				Status:       humanize_protobuf.GetConversationInformationResponse_FAILED,
+				ErrorMessage: "Could not update topic",
+			}, err
+		}
 	}
 	return gameLoop.SendMessage(req)
 }

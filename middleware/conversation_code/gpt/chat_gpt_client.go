@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	OpenAIKey = "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"
+	OpenAIKey = "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"
 )
 
 type ChatGptClient interface {

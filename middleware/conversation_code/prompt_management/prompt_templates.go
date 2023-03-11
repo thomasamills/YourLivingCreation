@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"testserver/db"
 	humanize_protobuf "testserver/src/generated/humanize-protobuf"
 	"text/template"
 	"time"
@@ -20,6 +21,7 @@ type PromptTemplate struct {
 	PersonalityTypePrimer *string
 	MemLog                *string
 	Synonym               *string
+	Topic                 *string
 }
 
 func ParseStructIntoTemplate(input interface{}, templ string) ([]byte, error) {
@@ -64,6 +66,7 @@ func GeneratePromptFromList(
 	promptSegmentToAdd []*humanize_protobuf.PromptSegment,
 	memLog *humanize_protobuf.MemoryLog,
 	emotionalState *humanize_protobuf.EmotionalState,
+	session db.Session,
 ) (string, error) {
 	currentPrompt := promptTemplate
 	// Then loop through every single prompt segment in the array omitting ones of the same type
@@ -127,6 +130,10 @@ func GeneratePromptFromList(
 			segmentsToAdd.PersonalityTypePrimer = &personalityTypePrimer
 			break
 		}
+	}
+	if len(session.NarrativeTopic) > 0 {
+		str := "The main topic of conversation which you will always refer to is: " + session.NarrativeTopic
+		segmentsToAdd.Topic = &str
 	}
 	byteArray, err := ParseStructIntoTemplate(segmentsToAdd, currentPrompt)
 	if err != nil {

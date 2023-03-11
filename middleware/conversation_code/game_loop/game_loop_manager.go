@@ -17,7 +17,7 @@ import (
 )
 
 type GameLoopManager interface {
-	StartGameLoop(startNarrative bool) error
+	StartGameLoop() error
 	SendMessage(req *humanize_protobuf.SendTextRequest,
 	) (*humanize_protobuf.GetConversationInformationResponse, error)
 	RetrieveInformation(
@@ -130,7 +130,7 @@ func (g *GameLoopManagerImpl) LoadNpcs() error {
 	return nil
 }
 
-func (g *GameLoopManagerImpl) StartGameLoop(startNarrative bool) error {
+func (g *GameLoopManagerImpl) StartGameLoop() error {
 	// The main game loop process.
 	start := func(
 		stopChan chan bool,
@@ -151,14 +151,9 @@ func (g *GameLoopManagerImpl) StartGameLoop(startNarrative bool) error {
 						//TODO intercept the response from gpt, send it to dialog flow to capture if the need was met.
 						//TODO if need was met, then re=qurey knowledge graph and find new need.
 						g.KeepAlive()
-						if startNarrative {
-							// In the future start this to override any actual dialog.
-						} else {
-							if err := g.npcSpeakWithTarget(npc); err != nil {
-								logrus.Error("npc could not auto speak")
-							}
+						if err := g.npcSpeakWithTarget(npc); err != nil {
+							logrus.Error("npc could not auto speak")
 						}
-
 						break
 					}
 				}
