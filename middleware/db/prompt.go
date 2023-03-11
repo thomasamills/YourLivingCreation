@@ -39,6 +39,7 @@ func (h *HumanizeDbImpl) CreatePrompt(
 			PromptType:           int32(prompt.PromptType),
 			PromptSetId:          prompt.PromptSetId,
 			RequiredSegmentTypes: h.encodePromptSegmentTypes(prompt.RequiredPromptSegmentTypes),
+			StoryBackground:      prompt.StoryBackground,
 		}
 
 		idealEmotionalStateErr := h.CreateEmotionalState(
@@ -105,6 +106,7 @@ func (h *HumanizeDbImpl) GetPrompt(
 		prompt.PromptName = result.PromptName
 		prompt.PromptSetId = result.PromptSetId
 		prompt.PromptText = result.PromptText
+		prompt.StoryBackground = result.StoryBackground
 
 		requiredPromptSegments, err := h.decodePromptSegmentTypes(result.RequiredSegmentTypes)
 		if err != nil {
@@ -188,23 +190,29 @@ func (h *HumanizeDbImpl) UpdatePrompt(
 	prompt *humanize_protobuf.Prompt,
 	upperTx *gorm.DB,
 ) error {
-	err := h.mainDB.Transaction(func(tx *gorm.DB) error {
-		p := &Prompt{
-			PromptId:    h.idGen.GetULIDfromtime(),
-			PromptText:  prompt.PromptText,
-			PromptName:  prompt.PromptName,
-			PromptType:  int32(prompt.PromptType),
-			PromptSetId: prompt.PromptSetId,
-		}
-		// TODO also update for emotional state
-		err := tx.Updates(p)
+	updatePrompt := func(tx *gorm.DB) error {
+		err := tx.Updates(prompt)
 		if err != nil {
 			if err.Error != nil {
 				return err.Error
 			}
 		}
 		return nil
-	})
+	}
+	var err error
+	if upperTx != nil {
+		err = updatePrompt(upperTx)
+	} else {
+		err = h.mainDB.Transaction(func(tx *gorm.DB) error {
+			err = updatePrompt(tx)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+
+			return nil
+		})
+	}
 	if err != nil {
 		return err
 	}

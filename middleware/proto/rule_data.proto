@@ -87,6 +87,7 @@ message Prompt{
   repeated RulePart rule_parts = 7;
   float emotional_state_squared_difference = 8;
   repeated PromptSegmentType required_prompt_segment_types = 9;
+  string story_background = 10;
 }
 
 message PromptSegment{
@@ -108,6 +109,7 @@ enum PromptSegmentType{
   PROMPT_SEGMENT_TYPE_IDEOLOGY_PRIMER = 3;
   PROMPT_SEGMENT_TYPE_RELIGION_PRIMER = 4;
   PROMPT_SEGMENT_TYPE_PERSONALITY_TYPE_PRIMER = 5;
+  PROMPT_SEGMENT_TYPE_STORY_BACKGROUND = 6;
 }
 
 enum PromptType{

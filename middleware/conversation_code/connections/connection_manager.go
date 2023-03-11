@@ -110,6 +110,7 @@ func (cm *ConnectionManagerImpl) Connect(
 			npcInformation.IdeologySegmentSetIds,
 			npcInformation.PersonalityIds,
 			npcInformation.EmotionalPrimerIds,
+			npcInformation.StoryBackgroundIds,
 		)
 		if success != true {
 			logrus.WithFields(logrus.Fields{

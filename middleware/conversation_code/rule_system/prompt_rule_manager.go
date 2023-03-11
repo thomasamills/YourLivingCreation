@@ -156,6 +156,8 @@ func (a PromptRuleSystemManagerImpl) GenerateCharacterPrompt(
 			}).Info("attempting to get the ideal emotional states for the prompt_segment_set/primer_type combo")
 			var promptSegmentIds []string
 			switch neededPrimerType {
+			case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_STORY_BACKGROUND:
+				promptSegmentIds = strings.Split(npcInformation.Entity.StoryBackgroundIds, ",")
 			case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_MOTIVATIONAL_PRIMER:
 				promptSegmentIds = strings.Split(npcInformation.Entity.NeedsIds, ",")
 				break

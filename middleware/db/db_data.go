@@ -73,6 +73,7 @@ type Entity struct {
 	IdeologyIds         string
 	PersonalityTypeIds  string
 	EmotionalPrimerIds  string
+	StoryBackgroundIds  string
 }
 
 type MessageEntry struct {
@@ -135,6 +136,7 @@ type Prompt struct {
 	PromptName           string
 	PromptSetId          string
 	RequiredSegmentTypes string // encoded from array of proto enums
+	StoryBackground      string
 }
 
 type PromptSegment struct {

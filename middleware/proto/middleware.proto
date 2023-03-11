@@ -46,6 +46,7 @@ message NpcRequestInformation{
   repeated string religion_segment_set_ids = 12;
   repeated string ideology_segment_set_ids = 13;
   repeated string emotional_primer_ids = 14;
+  repeated string story_background_ids = 15;
 }
 
 
@@ -55,6 +56,8 @@ message MiddleWareConnectReq{
   bool start_async_game_loop = 3;
   bool wait_for_commit_message_before_updating_state = 4;
   string narrative_topic = 5;
+  bool toggle_random_topic_quests = 6;
+
 }
 
 message MiddleWareConnectResp{

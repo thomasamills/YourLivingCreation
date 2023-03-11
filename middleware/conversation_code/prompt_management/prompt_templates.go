@@ -22,6 +22,7 @@ type PromptTemplate struct {
 	MemLog                *string
 	Synonym               *string
 	Topic                 *string
+	StoryBackground       *string
 }
 
 func ParseStructIntoTemplate(input interface{}, templ string) ([]byte, error) {
@@ -100,6 +101,13 @@ func GeneratePromptFromList(
 				return "", err
 			}
 			segmentsToAdd.EmotionalPrimer = &emotionalPrimer
+			break
+		case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_STORY_BACKGROUND:
+			storyBackgroundPrimer, err := ParseValuesIntoPrimer(segmentsToAdd, promptSegment.Message)
+			if err != nil {
+				return "", err
+			}
+			segmentsToAdd.StoryBackground = &storyBackgroundPrimer
 			break
 		case humanize_protobuf.PromptSegmentType_PROMPT_SEGMENT_TYPE_MOTIVATIONAL_PRIMER:
 			motivationalPrimer, err := ParseValuesIntoPrimer(segmentsToAdd, promptSegment.Message)

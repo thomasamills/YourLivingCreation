@@ -15,7 +15,8 @@ func (h *HumanizeDbImpl) CreateEntity(
 	needsIds, actuationSetIds,
 	religionIds, ideologyIds,
 	personalityTypeIds,
-	emomtionalPrimerIds []string,
+	emotionalPrimerIds,
+	storyBackgroundIds []string,
 ) bool {
 	entity := &Entity{
 		EntityId:            id,
@@ -30,6 +31,8 @@ func (h *HumanizeDbImpl) CreateEntity(
 		ReligionIds:         strings.Join(religionIds, ","),
 		IdeologyIds:         strings.Join(ideologyIds, ","),
 		PersonalityTypeIds:  strings.Join(personalityTypeIds, ","),
+		EmotionalPrimerIds:  strings.Join(emotionalPrimerIds, ","),
+		StoryBackgroundIds:  strings.Join(storyBackgroundIds, ","),
 	}
 	_ = h.mainDB.Create(entity)
 	return true

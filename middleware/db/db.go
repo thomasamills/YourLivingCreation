@@ -31,7 +31,8 @@ type HumanizeDB interface {
 		needsIds, actuationSetIds,
 		religionIds, ideologyIds,
 		personalityTypeIds,
-		emotionalPrimerIds []string,
+		emotionalPrimerIds,
+		storyBackgroundIds []string,
 	) bool
 	GetEntity(
 		entityId string,
