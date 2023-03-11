@@ -56,7 +56,7 @@ type Session struct {
 	NpcEntityIds    string // csv
 	IsAsyncSession  bool
 	WaitForCommit   bool
-	StartNarrative  bool
+	NarrativeTopic  string
 }
 
 type Entity struct {

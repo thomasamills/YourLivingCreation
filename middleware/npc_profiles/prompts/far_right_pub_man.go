@@ -19,7 +19,8 @@ ${{.MotivationalPrimer}}
 ${{.EmotionalPrimer}}
 ${{.IdeologyPrimer}}
 ${{.ReligionPrimer}}
-${{.EmotionalPrimer}}.`
+${{.EmotionalPrimer}}
+${{.Topic}}.`
 
 var FarRightPubManNormal = &humanize_protobuf.Prompt{
 	PromptId:    "FAR_RIGHT_PUB_MAN_PROMPT",
